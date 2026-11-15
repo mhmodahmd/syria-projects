@@ -4,7 +4,9 @@
 <base target="_top">
 <meta charset="utf-8">
 <script>if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.innerHTML=""}}
-window.API_URL="https://script.google.com/macros/s/AKfycbxq3MlxMA09zHsAMWBvuNCc5YxZC9L_7fA2Yb0JAlGAJo7cdZyoaZKVd2nGawBZL4dT/exec";</script>
+window.API_URL="https://script.google.com/macros/s/AKfycbxq3MlxMA09zHsAMWBvuNCc5YxZC9L_7fA2Yb0JAlGAJo7cdZyoaZKVd2nGawBZL4dT/exec";
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});</script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1E7F4F"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="مشاريع سوريا">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظام مشاريع لجنة سوريا</title>
@@ -98,6 +100,13 @@ tr.click{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media print{#loading{display:none!important}}
 /* مؤشر خفيف للتحديث الخلفي لنسخة معروضة من ذاكرة التبويب (لا يمنع الضغط) */
+/* بطاقة تثبيت النظام تطبيقاً (نسخة GitHub) */
+#pwacard{position:fixed;z-index:400;inset-inline:16px;bottom:16px;max-width:480px;margin-inline:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px;display:flex;gap:12px;align-items:center;animation:pwain .35s ease-out}
+#pwacard img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex:none}
+#pwacard .pwat{flex:1;min-width:0}#pwacard b{font-size:15px}#pwacard p{margin:2px 0 0;font-size:13px;color:var(--mut)}
+#pwacard .pwab{display:flex;flex-direction:column;gap:6px}
+@keyframes pwain{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@media print{#pwacard{display:none!important}}
 #vcbusy{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:45;background:var(--soft);color:var(--pri);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);pointer-events:none}@media print{#vcbusy{display:none!important}}
 /* بطاقات الشرح: بقعة ضوء ثابتة فوق العنصر (لا تتأثر بطبقات القائمة الجانبية)، وبطاقة، وتلميحات الصفحات */
 #tourspot{position:fixed;z-index:1000;border-radius:8px;box-shadow:0 0 0 3px var(--acc),0 0 0 9999px rgba(0,0,0,.45);pointer-events:none}
@@ -213,8 +222,8 @@ body.dscreen #scrx{display:block;position:fixed;top:12px;left:12px;z-index:40}
   <form class="login-card" onsubmit="doLogin(event);return false">
     <img class="login-logo" data-logo alt="جمعية إحياء التراث الإسلامي">
     <h1>نظام مشاريع لجنة سوريا</h1><p>جمعية إحياء التراث الإسلامي</p>
-    <label>اسم المستخدم</label><input id="lu" autocomplete="username" placeholder="اسم المستخدم بالإنجليزية" required>
-    <label>كلمة المرور</label><input id="lp" type="password" autocomplete="current-password" required>
+    <label>اسم المستخدم</label><input id="lu" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="اسم المستخدم بالإنجليزية" required>
+    <label>كلمة المرور</label><input id="lp" name="password" type="password" autocomplete="current-password" required>
     <div class="err" id="lerr"></div>
     <button class="btn" style="width:100%;margin-top:6px" id="lbtn">دخول</button>
     <div style="text-align:center;margin-top:12px"><a href="#" onclick="forgotPw();return false">نسيت كلمة المرور؟</a></div>
@@ -1530,17 +1539,22 @@ function cycleTheme(){if(!ME)return;const cur=(ME.guide&&ME.guide.theme)||'auto'
   ME.guide=Object.assign({hints:{}},ME.guide,{theme:t});applyTheme(t);api('profile.guide',{theme:t}).catch(()=>{});
   if(charts.length)go(location.hash.slice(1)||'dashboard')}   // الرسوم تُعاد بألوان الوضع الجديد
 async function doLogin(e){e.preventDefault();$('#lerr').textContent='';$('#lbtn').disabled=true;
-  try{const r=await api('login',{username:$('#lu').value,password:$('#lp').value});TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}await boot(r.user);}
+  try{const u=$('#lu').value,p=$('#lp').value;const r=await api('login',{username:u,password:p});TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}
+    pwStore(u,p,r.user&&r.user.full_name);$('#lp').value='';await boot(r.user);}
   catch(x){$('#lerr').textContent=x.message}finally{$('#lbtn').disabled=false}return false}
+/** حفظ كلمة المرور في مدير كلمات مرور المتصفح وتحديثها (Chrome وEdge وAndroid): بعد الدخول يعرض المتصفح «حفظ كلمة المرور»، وبعد التغيير أو الاستعادة «تحديثها».
+ *  يعمل في نسخة GitHub (الصفحة نفسها في أعلى النافذة)؛ داخل إطار Google لا يتاح فلا يحدث شيء. pwUserField: خانة مخفية باسم الحساب في نموذج التغيير ليعرف المتصفح أي حساب يحدّث */
+function pwStore(u,p,name){try{if(window.PasswordCredential&&navigator.credentials&&u&&p&&String(u).indexOf('@')===-1)navigator.credentials.store(new PasswordCredential({id:String(u),password:String(p),name:String(name||u)})).catch(()=>{})}catch(e){}}
+function pwUserField(u){const fm=$('#mf');if(!fm||!u)return;const h=document.createElement('input');h.type='text';h.autocomplete='username';h.value=String(u);h.readOnly=true;h.tabIndex=-1;h.setAttribute('aria-hidden','true');h.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';fm.prepend(h)}
 function forgotPw(){
   openForm('استعادة كلمة المرور',[{k:'identifier',label:'اسم المستخدم أو البريد',req:1,wide:1,ac:'username'}],{},async d=>{
     await api('reset.request',{identifier:d.identifier});
-    setTimeout(()=>openForm('إدخال الرمز',[{k:'code',label:'الرمز المرسل إلى بريدك (8 أرقام)',req:1},{k:'password',label:'كلمة المرور الجديدة (10 أحرف على الأقل)',type:'password',req:1,ac:'new-password'}],{},async x=>{await api('reset.confirm',{identifier:d.identifier,code:x.code,password:x.password});toast('تم تغيير كلمة المرور، سجّل الدخول')},'<div class="note">إن كان الحساب موجوداً وله بريد مسجّل فقد أُرسل إليه رمز. إن لم يصلك فراجع المدير.</div>'),50)
+    setTimeout(()=>{openForm('إدخال الرمز',[{k:'code',label:'الرمز المرسل إلى بريدك (8 أرقام)',req:1,ac:'one-time-code'},{k:'password',label:'كلمة المرور الجديدة (10 أحرف على الأقل)',type:'password',req:1,ac:'new-password'}],{},async x=>{await api('reset.confirm',{identifier:d.identifier,code:x.code,password:x.password});pwStore(d.identifier,x.password);toast('تم تغيير كلمة المرور، سجّل الدخول')},'<div class="note">إن كان الحساب موجوداً وله بريد مسجّل فقد أُرسل إليه رمز. إن لم يصلك فراجع المدير.</div>');pwUserField(d.identifier)},50)
   },'<div class="note">سيُرسل رمز الاستعادة إلى البريد المسجّل في حسابك.</div>')}
 /** S13: الخروج يمسح الرمز محلياً ويعرض شاشة الدخول فوراً (showLogin)، ثم يطلب إبطال الجلسة في الخادم دون انتظار يعيق الواجهة */
 function doLogout(){const t=TOKEN;showLogin();if(t){try{callServer(t,'logout',{}).catch(()=>{})}catch(e){}}return false}
 async function changePw(){
-  openForm('تغيير كلمة المرور',[{k:'old',label:'كلمة المرور الحالية',type:'password',req:1,ac:'current-password'},{k:'new',label:'كلمة المرور الجديدة (10 أحرف على الأقل)',type:'password',req:1,ac:'new-password'}],{},async d=>{const r=await api('changePassword',d);if(r&&r.token){TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}}const was=ME.must_change;ME.must_change=false;toast('تم تغيير كلمة المرور');if(was){go(location.hash.slice(1)||'dashboard');tourAuto()}});return false}
+  openForm('تغيير كلمة المرور',[{k:'old',label:'كلمة المرور الحالية',type:'password',req:1,ac:'current-password'},{k:'new',label:'كلمة المرور الجديدة (10 أحرف على الأقل)',type:'password',req:1,ac:'new-password'}],{},async d=>{const r=await api('changePassword',d);pwStore(ME.username,d.new,ME.full_name);if(r&&r.token){TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}}const was=ME.must_change;ME.must_change=false;toast('تم تغيير كلمة المرور');if(was){go(location.hash.slice(1)||'dashboard');tourAuto()}});pwUserField(ME&&ME.username);return false}
 async function boot(user){
   const ini=await api('init');ME=ini.me;L=ini.lookups;   // طلب واحد: المستخدم والقوائم وعدد الإشعارات
   applyTheme(ME.guide&&ME.guide.theme);
@@ -2672,7 +2686,26 @@ async function backupNow(){const b=$('#bkb');b.disabled=true;b.textContent='جا
   catch(e){alert('فشل النسخ الاحتياطي: '+e.message);b.disabled=false;b.textContent='نسخ احتياطي الآن'}}
 async function pgNotifs(){const rows=await apiC('notifications.list');setBadge(rows.filter(n=>!n.read).length);$('#view').innerHTML=`<div class="card">${rows.length?rows.map(n=>`<div style="padding:10px 0;border-bottom:1px solid var(--line);${n.read?'opacity:.6':''}"><b>${esc(n.title)}</b><div>${esc(n.body)}</div><div class="who">${esc(n.created_at)} ${n.read?'':`· <a href="#" onclick="markRead(${Number(n.id)});return false">تعليم كمقروء</a>`} ${n.link&&n.link.indexOf('project/')===0?`· <a href="#" onclick="openProject(${Number(n.link.split('/')[1])});return false">فتح المشروع</a>`:''}</div></div>`).join(''):'<div class="empty">لا إشعارات</div>'}</div>`}
 async function markRead(id){await api('notifications.read',{id});go('notifications')}
+/* ---------- تثبيت النظام تطبيقاً (نسخة GitHub وحدها: window.API_URL؛ إطار Google لا يدعم التثبيت) ----------
+ * Chrome وEdge (الكمبيوتر وAndroid): بطاقة بزر «تثبيت» عند حدث beforeinstallprompt. iPhone/iPad: شرح «مشاركة ← إضافة إلى الشاشة الرئيسية».
+ * لا تظهر إن كان مفتوحاً تطبيقاً مثبّتاً، و«لاحقاً» تخفيها حتى إغلاق التبويب (sessionStorage) */
+let PWA_EVT=null;
+function pwaStandalone(){try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}}
+function pwaIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent||'')}
+function pwaInit(){if(!window.API_URL||pwaStandalone())return;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();PWA_EVT=e;pwaCard()});
+  window.addEventListener('appinstalled',()=>{PWA_EVT=null;pwaHide();toast('تم تثبيت النظام على جهازك')});
+  if(pwaIOS())setTimeout(pwaCard,900)}
+function pwaCard(){try{if(sessionStorage.getItem('pwa-later'))return}catch(e){}if(document.getElementById('pwacard'))return;
+  const ios=!PWA_EVT&&pwaIOS();if(!PWA_EVT&&!ios)return;
+  const d=document.createElement('div');d.id='pwacard';d.setAttribute('role','dialog');d.setAttribute('aria-label','تثبيت النظام');
+  d.innerHTML='<img alt=""><div class="pwat"><b>ثبّت النظام على جهازك</b><p>'+(ios?'اضغط زر المشاركة في Safari ثم «إضافة إلى الشاشة الرئيسية».':'يفتح كتطبيق مستقل من سطح المكتب أو الشاشة الرئيسية، بنقرة واحدة.')+'</p></div><div class="pwab">'+(ios?'':'<button type="button" class="btn" onclick="pwaInstall()">تثبيت</button>')+'<button type="button" class="btn sec" onclick="pwaLater()">لاحقاً</button></div>';
+  d.querySelector('img').src=LOGO;document.body.appendChild(d)}
+async function pwaInstall(){const e=PWA_EVT;if(!e)return;pwaHide();try{e.prompt();await e.userChoice}catch(x){}PWA_EVT=null}
+function pwaLater(){try{sessionStorage.setItem('pwa-later','1')}catch(e){}pwaHide()}
+function pwaHide(){const d=document.getElementById('pwacard');if(d)d.remove()}
 /* ---------- بدء ---------- */
+pwaInit();
 if(TOKEN){boot().catch(()=>showLogin())}
 </script>
 

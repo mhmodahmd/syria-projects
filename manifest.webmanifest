@@ -1,0 +1,17 @@
+{
+  "name": "نظام مشاريع لجنة سوريا",
+  "short_name": "مشاريع سوريا",
+  "description": "نظام إدارة المشاريع الخيرية والتبرعات - لجنة سوريا",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F6F5",
+  "theme_color": "#1E7F4F",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
