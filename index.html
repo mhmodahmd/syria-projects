@@ -114,6 +114,21 @@ tr.click{cursor:pointer}
 .thopt input{position:absolute;opacity:0;width:1px;height:1px}.thopt small{color:var(--mut);font-size:12px}
 .thopt.on{border-color:var(--pri);background:var(--soft)}.thopt:focus-within{box-shadow:var(--focus)}
 @media (max-width:520px){.thgrid{grid-template-columns:1fr}}
+/* صفحة الإعدادات: بطاقة الحساب، ومجموعتان بعنوان وخط، ومربعات الأدوات */
+.setpage{display:flex;flex-direction:column;gap:14px;max-width:1240px}
+.sethead{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.sethead .avbig{width:96px;height:96px}
+.shinfo{flex:1;min-width:220px}.shinfo .nm{display:block;font-size:20px;color:var(--title)}
+.shmeta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:8px;font-size:13.5px}.shmeta b{color:var(--pri2);font-weight:600;margin-inline-end:6px}
+.shact{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.setgrp{margin:8px 2px -2px;font-size:15px;color:var(--title);display:flex;align-items:center;gap:10px}
+.setgrp::after{content:"";flex:1;height:1px;background:var(--line)}
+.settiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:12px}
+.stile{display:flex;gap:12px;align-items:flex-start;text-align:start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .2s,transform .15s,box-shadow .2s}
+.stile:hover{border-color:var(--pri);transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(15,81,50,.35)}.stile:focus-visible{outline:none;box-shadow:var(--focus)}
+.sti{width:42px;height:42px;border-radius:12px;background:var(--soft);color:var(--pri);display:grid;place-items:center;flex:none}.sti svg{width:22px;height:22px}
+.stile b{display:block;font-size:14.5px;color:var(--title)}.stile small{display:block;color:var(--mut);font-size:12.5px;line-height:1.6;margin-top:2px}
+@media(max-width:600px){.sethead{align-items:flex-start}.sethead .avbig{width:72px;height:72px}.shact{width:100%}}
 /* بطاقة تثبيت النظام تطبيقاً (نسخة GitHub) */
 #pwacard{position:fixed;z-index:400;inset-inline:16px;bottom:16px;max-width:480px;margin-inline:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px;display:flex;gap:12px;align-items:center;animation:pwain .35s ease-out}
 #pwacard img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex:none}
@@ -1468,9 +1483,9 @@ const TOUR = {
       projects: 'أضف الجهات وعدّل بياناتها ونطاق عملها، وحدّد حالة اعتمادها لدى اللجنة.',
       entity: 'بيانات جهتك المسجّلة في النظام.' } },
     { el: 'nav-users', title: 'المستخدمون', text: 'حسابات المستخدمين وأدوارهم، وتوليد كلمة مرور مؤقتة، ومنع عمليات بعينها عن مستخدم.' },
-    { el: 'nav-audit', title: 'سجل التدقيق', text: 'من فعل ماذا ومتى في النظام، مع البحث بالمستخدم والجدول والتاريخ.' },
+    { el: 'nav-profile', title: 'سجل التدقيق (من الإعدادات)', text: 'من فعل ماذا ومتى في النظام، مع البحث بالمستخدم والجدول والتاريخ. تجده في «الإعدادات» ← الأدوات والسجلات.' },
     { el: 'nav-notifications', title: 'الإشعارات', text: 'جرس الإشعارات بجوار اسمك أعلى الصفحة، وعليه عدد غير المقروء.' },
-    { el: 'nav-backup', title: 'النسخ الاحتياطي', text: 'نسخة احتياطية فورية قبل أي عمل كبير، وقائمة النسخ اليومية.' },
+    { el: 'nav-profile', title: 'النسخ الاحتياطي (من الإعدادات)', text: 'نسخة احتياطية فورية قبل أي عمل كبير، وقائمة النسخ اليومية. تجدها في «الإعدادات» ← الأدوات والسجلات.' },
     { el: 'nav-profile', title: 'دليل المستخدم (من الإعدادات)', text: 'شرح دورك في النظام: ما تستطيعه وما لا تستطيعه، وخطوات كل مهمة بأمثلة. تجده في «الإعدادات» مع الجهات المنفذة، ومنها تعيد هذه الجولة.' },
     { el: 'nav-profile', title: 'الإعدادات', text: {
       _: 'صورتك وبياناتك، وتغيير كلمة المرور، والوضع الفاتح أو الداكن، وإعادة الجولة.',
@@ -1627,7 +1642,7 @@ async function boot(user,pre){
 /** ترتيب القائمة الجانبية = ترتيب المفاتيح هنا (العنصر الرابع 1 = صفحة لا تظهر في القائمة، مثل كشف الحساب) */
 const PAGES={dashboard:['لوحة الإدارة',()=>true,pgDashboard],projects:['المشاريع',()=>true,pgProjects],reports:['التقارير',()=>can('reports','view'),pgReports],
  donors:['المتبرعون',()=>can('donors','view'),pgDonors],donations:['التبرعات',()=>can('donations','view'),pgDonations],payments:['الصرف والتحويلات',()=>can('payments','view'),pgPayments],balances:['أرصدة الحسابات',()=>can('balances','view'),pgBalances],balmoves:['كشف حساب',()=>can('balances','view'),pgStatement,1],transfers:['الحوالات',()=>can('payments','view'),pgTransfers],redirections:['إعادة التوجيه',()=>can('redirections','view'),pgRedirections],entities:['الجهات المنفذة',()=>true,pgEntities,1],
- users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit],notifications:['الإشعارات',()=>true,pgNotifs,1],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup],guide:['دليل المستخدم',()=>true,pgGuide,1],profile:['الإعدادات',()=>true,pgProfile]};
+ users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit,1],notifications:['الإشعارات',()=>true,pgNotifs,1],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup,1],guide:['دليل المستخدم',()=>true,pgGuide,1],profile:['الإعدادات',()=>true,pgProfile]};
 /** أيقونات القائمة (خطوط بسيطة، لون النص نفسه) */
 const NAVI={dashboard:'<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>',
  projects:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',reports:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
@@ -1647,7 +1662,7 @@ const SKEL='<div class="skel" role="status" aria-label="جارٍ التحميل�
 async function go(p){VC_NAV++;
   if(!PAGES[p]||!PAGES[p][1]())p='dashboard';location.hash=p;
   if(p!=='dashboard'&&document.body.classList.contains('dscreen'))dashScreen(0);
-  const navp=p==='guide'||p==='entities'?'profile':p;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===navp));
+  const navp=SET_PAGES.indexOf(p)!==-1?'profile':p;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===navp));
   const ta=$('#tacts');if(ta)ta.innerHTML='';   // أزرار رأس الصفحة تضعها الصفحة نفسها (المشاريع)
   charts.forEach(c=>c.destroy());charts=[];$('#title').textContent=PAGES[p][0];$('#view').innerHTML=SKEL;
   try{await PAGES[p][2]();const h=hintHtml(p);if(h)$('#view').insertAdjacentHTML('afterbegin',h)}catch(e){$('#view').innerHTML=`<div class="note">${esc(e.message)}</div>`}
@@ -2249,22 +2264,37 @@ const sigBox=(p,slot,label)=>{const s=(p.signatures||{})[slot],canS=(p.can_sign|
   return `<div class="sigcard"><b>${label}</b>${s?`${s.image?`<img src="${s.image}" alt="توقيع">`:'<div class="who">موقّع إلكترونياً</div>'}<div class="who">${esc(s.name)} — <bdi dir="ltr">${esc(String(s.at).slice(0,16))}</bdi></div>${s.can_undo?`<button class="btn sm sec" onclick="signProject(${Number(p.id)},'${slot}',1)">إلغاء التوقيع</button>`:''}`:(canS?`<button class="btn sm" onclick="signProject(${Number(p.id)},'${slot}',0)">توقيع</button>`:'<div class="who">لم يُوقَّع بعد</div>')}</div>`};
 async function signProject(id,slot,undo){if(undo&&!confirm('إلغاء التوقيع؟'))return;try{await once('sg'+id+slot,()=>api('projects.sign',{id,slot,undo}))}catch(e){alert(e.message);return}toast(undo?'أُلغي التوقيع':'تم التوقيع');openProject(id)}
 /** الإعدادات: البيانات، وتغيير كلمة المرور، وصورة التوقيع لمن يوقّع */
-/** «الإعدادات» (كانت «الإعدادات»): الحساب والصورة، والأمان، والمظهر، والجولة والتلميحات، وصورة التوقيع لمن يوقّع */
+/** صفحات تُفتح من «الإعدادات» لا من القائمة الجانبية (والإعدادات تبقى مميزة في القائمة أثناء فتحها) */
+const SET_PAGES=['guide','entities','audit','backup'];
+/** «الإعدادات»: بطاقة الحساب والصورة، ثم «الأدوات والسجلات» مربعات بحسب الصلاحية، ثم «حسابي وتفضيلاتي» (الأمان، المظهر، الجولة، التوقيع) */
 async function pgProfile(){const u=await api('profile.get');const th=(ME.guide&&ME.guide.theme)||'auto';
   const opt=(v,l,d)=>`<label class="thopt${th===v?' on':''}"><input type="radio" name="theme" value="${v}" ${th===v?'checked':''} onchange="setTheme(this.value)"><b>${l}</b><small>${d}</small></label>`;
-  $('#view').innerHTML=`<div class="setgrid">
-  <div class="card"><h3>الحساب</h3><div class="avrow"><div class="avbig" id="avbig">${avHtml(u.avatar,u.full_name)}</div><div class="avinfo"><b>${esc(u.full_name)}</b><div class="who">${esc(u.role_label)}${u.entity_name?' · '+esc(u.entity_name):''}</div>
-   <div class="row" style="margin-top:10px"><button type="button" class="btn sec sm" onclick="$('#avfile').click()">${u.avatar?'تغيير الصورة':'إضافة صورة'}</button>${u.avatar?'<button type="button" class="btn sec sm" onclick="saveAvatar(null)">حذف الصورة</button>':''}<input type="file" id="avfile" accept="image/*" class="hidden" onchange="saveAvatar(this.files[0])"></div></div></div>
-   <div class="kv" style="margin-top:14px"><b>اسم المستخدم</b><span dir="ltr" style="text-align:right">${esc(u.username)}</span><b>البريد</b><span>${esc(u.email||'—')}</span></div>
-   <div class="note">تظهر صورتك في أعلى الصفحة. تُقص مربعة وتُصغَّر تلقائياً.</div></div>
-  <div class="card"><h3>الدليل والقوائم</h3><p class="who" style="margin-top:0">دليل استخدام النظام لدورك، والجهات المنفذة${can('outputs','manageItems')?'، وقائمة بنود المشاريع':''}.</p><div class="row"><button type="button" class="btn sec" onclick="go('guide')">دليل المستخدم</button><button type="button" class="btn sec" onclick="go('entities')">الجهات المنفذة</button>${can('outputs','manageItems')?'<button type="button" class="btn sec" onclick="outItemsMgr()">قائمة البنود</button>':''}</div></div>
-  <div class="card"><h3>الأمان</h3><p class="who" style="margin-top:0">كلمة المرور 10 أحرف على الأقل. بعد تغييرها تُغلق جلساتك على الأجهزة الأخرى، ويعرض متصفحك تحديث الكلمة المحفوظة.</p><button type="button" class="btn sec" onclick="changePw()">تغيير كلمة المرور</button></div>
-  <div class="card"><h3>المظهر</h3><div class="thgrid">${opt('auto','تلقائي','حسب إعداد جهازك')}${opt('light','فاتح','خلفية بيضاء')}${opt('dark','داكن','مريح ليلاً')}</div><div class="note">يُحفظ في حسابك فيتبعك على أي جهاز.</div></div>
-  <div class="card"><h3>الجولة التعريفية والتلميحات</h3><p class="who" style="margin-top:0">أعد مشاهدة الجولة التي تشرح صفحاتك، أو أظهر التلميحات التي أغلقتها.</p><div class="row"><button type="button" class="btn sec" onclick="startTour()">ابدأ الجولة التعريفية</button><button type="button" class="btn sec" onclick="resetGuide()">إظهار التلميحات من جديد</button></div></div>
-  ${u.can_sign?`<div class="card"><h3>صورة التوقيع</h3><div class="note">تظهر صورة توقيعك في طباعة طلب الدعم المعتمد عند ضغطك «توقيع» في صفحة المشروع. استخدم صورة توقيع على خلفية بيضاء (PNG أو JPG)، وتُصغَّر تلقائياً.</div>
-  <div class="sigprev" id="sigprev">${u.signature?`<img src="${u.signature}" alt="توقيعي">`:'<span class="who">لا توجد صورة توقيع</span>'}</div>
-  <div class="row"><input type="file" id="sigfile" accept="image/png,image/jpeg" style="max-width:320px"><button class="btn" onclick="saveSignature()">حفظ التوقيع</button>${u.signature?'<button class="btn sec" onclick="saveSignature(1)">حذف التوقيع</button>':''}</div></div>`:''}
-  </div>`}
+  const ITEMS='<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>';
+  const tiles=[['guide','دليل المستخدم','شرح دورك وخطوات كل مهمة بأمثلة، وإعادة الجولة',true],
+    ['entities','الجهات المنفذة','بيانات الجهات واعتمادها ونطاق عملها',true],
+    ['items','قائمة البنود','بنود المشاريع ووحداتها وقطاعاتها',can('outputs','manageItems')],
+    ['audit','سجل التدقيق','من فعل ماذا ومتى، بالقيمة قبل التعديل وبعده',can('audit','view')],
+    ['backup','النسخ الاحتياطي','نسخة فورية قبل أي عمل كبير، وقائمة النسخ',can('backup','view')]].filter(t=>t[3]);
+  const tile=t=>`<button type="button" class="stile" data-act="${t[0]}"><span class="sti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t[0]==='items'?ITEMS:(NAVI[t[0]]||NAVI._)}</svg></span><span><b>${t[1]}</b><small>${t[2]}</small></span></button>`;
+  $('#view').innerHTML=`<div class="setpage">
+  <div class="card sethead"><div class="avbig" id="avbig">${avHtml(u.avatar,u.full_name)}</div>
+   <div class="shinfo"><b class="nm">${esc(u.full_name)}</b><div class="who">${esc(u.role_label)}${u.entity_name?' · '+esc(u.entity_name):''}</div>
+    <div class="shmeta"><span><b>اسم المستخدم</b><bdi dir="ltr">${esc(u.username)}</bdi></span><span><b>البريد</b>${esc(u.email||'—')}</span></div></div>
+   <div class="shact"><div class="row" style="margin:0"><button type="button" class="btn sec sm" onclick="$('#avfile').click()">${u.avatar?'تغيير الصورة':'إضافة صورة'}</button>${u.avatar?'<button type="button" class="btn sec sm" onclick="saveAvatar(null)">حذف الصورة</button>':''}</div><small class="who">تظهر أعلى الصفحة، وتُقص مربعة وتُصغَّر تلقائياً.</small><input type="file" id="avfile" accept="image/*" class="hidden" onchange="saveAvatar(this.files[0])"></div></div>
+  <h3 class="setgrp">الأدوات والسجلات</h3>
+  <div class="settiles">${tiles.map(tile).join('')}</div>
+  <h3 class="setgrp">حسابي وتفضيلاتي</h3>
+  <div class="setgrid">
+   <div class="card"><h3>كلمة المرور</h3><p class="who" style="margin-top:0">10 أحرف على الأقل. بعد تغييرها تُغلق جلساتك على الأجهزة الأخرى، ويعرض متصفحك تحديث الكلمة المحفوظة.</p><button type="button" class="btn sec" onclick="changePw()">تغيير كلمة المرور</button></div>
+   <div class="card"><h3>المظهر</h3><div class="thgrid">${opt('auto','تلقائي','حسب إعداد جهازك')}${opt('light','فاتح','خلفية بيضاء')}${opt('dark','داكن','مريح ليلاً')}</div><small class="who" style="display:block;margin-top:8px">يُحفظ في حسابك فيتبعك على أي جهاز.</small></div>
+   <div class="card"><h3>الجولة التعريفية والتلميحات</h3><p class="who" style="margin-top:0">أعد مشاهدة الجولة التي تشرح صفحاتك، أو أظهر التلميحات التي أغلقتها.</p><div class="row" style="margin-top:0"><button type="button" class="btn sec" onclick="startTour()">ابدأ الجولة التعريفية</button><button type="button" class="btn sec" onclick="resetGuide()">إظهار التلميحات من جديد</button></div></div>
+   ${u.can_sign?`<div class="card"><h3>صورة التوقيع</h3><p class="who" style="margin-top:0">تظهر في طباعة طلب الدعم المعتمد عند ضغطك «توقيع» في صفحة المشروع. صورة على خلفية بيضاء (PNG أو JPG)، وتُصغَّر تلقائياً.</p>
+   <div class="sigprev" id="sigprev">${u.signature?`<img src="${u.signature}" alt="توقيعي">`:'<span class="who">لا توجد صورة توقيع</span>'}</div>
+   <div class="row" style="margin-top:0"><input type="file" id="sigfile" accept="image/png,image/jpeg" style="max-width:260px"><button class="btn" onclick="saveSignature()">حفظ التوقيع</button>${u.signature?'<button class="btn sec" onclick="saveSignature(1)">حذف التوقيع</button>':''}</div></div>`:''}
+  </div></div>`;
+  $('#view').querySelectorAll('.stile').forEach(b=>b.onclick=()=>SET_ACT[b.dataset.act]())}   // بلا معالجات مضمّنة (قاعدة S2)
+/** فتح أدوات الإعدادات: الصفحات المخفية من القائمة، ونافذة قائمة البنود */
+const SET_ACT={guide:()=>go('guide'),entities:()=>go('entities'),items:()=>outItemsMgr(),audit:()=>go('audit'),backup:()=>go('backup')};
 /** صورة المستخدم: الصورة إن وُجدت (data:image فقط)، وإلا أول حرف من الاسم على دائرة ملوّنة */
 function avHtml(img,name){return img&&String(img).indexOf('data:image/')===0?`<img src="${esc(img)}" alt="">`:`<span class="avl">${esc(String(name||'؟').trim().charAt(0)||'؟')}</span>`}
 function showAvatar(img){ME.avatar=img||'';const h=$('#whoav');if(h)h.innerHTML=avHtml(ME.avatar,ME.full_name);const b=$('#avbig');if(b)b.innerHTML=avHtml(ME.avatar,ME.full_name)}
