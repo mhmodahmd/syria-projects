@@ -247,6 +247,13 @@ aside .badge{position:absolute;top:4px;inset-inline-end:12px;line-height:17px}
 .whocap{display:inline-flex;align-items:center;gap:10px;height:40px;padding-block:3px;padding-inline:12px 3px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:13px;font-weight:600;max-width:100%}
 .whocap:hover{border-color:var(--pri)}.whocap #who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .whocap .whoav{width:32px;height:32px;margin:0;font-size:14px}
+.tacts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-inline-start:14px;margin-inline-end:auto}.tacts:empty{display:none}
+.tbtn.bell{position:relative;width:38px;padding:0;justify-content:center}.tbtn.bell .badge{position:absolute;top:-6px;inset-inline-end:-6px;line-height:18px;min-width:18px;text-align:center;padding:0 5px}
+/* شريط الفلاتر في سطر واحد (المشاريع): يمرّر أفقياً، وزرا البحث والمسح ثابتان في آخره */
+.sbbtn{display:flex;gap:8px;align-items:flex-end}
+.sbar.one{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.sbar.one .sbf{flex:1 0 128px;min-width:118px}.sbar.one .sbf:first-child{flex-basis:200px}
+.sbar.one .sbbtn{position:sticky;inset-inline-end:0;background:var(--card);padding-inline-start:8px;box-shadow:-10px 0 10px -8px rgba(0,0,0,.12);flex:none}
 /* مؤشر التحميل: كبسولة بأخضر الهوية تنزلق من أعلى الشاشة بدائرة دوّارة (والطبقة #loading الشفافة تمنع الضغط المزدوج) */
 #loading{background:transparent}
 #loading .ldbox{position:fixed;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--gd);color:#fff;padding:9px 18px;border-radius:999px;box-shadow:0 12px 30px rgba(15,81,50,.35);font-size:13px;font-weight:600;min-width:0;text-align:start;animation:ldin .3s cubic-bezier(.2,.9,.3,1.2)}
@@ -285,7 +292,7 @@ aside .badge{position:absolute;top:4px;inset-inline-end:12px;line-height:17px}
 <div id="vcbusy" class="hidden" role="status" aria-live="polite">جارٍ التحديث…</div>
 <div id="app" class="hidden">
   <aside><div class="logo-badge"><img data-logo alt="الشعار"></div><h2>نظام مشاريع<br>لجنة سوريا</h2><nav id="nav"></nav></aside>
-  <main><div class="phead"><img data-logo alt=""><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div></div><div class="top"><div class="ttl"><div class="crumb">نظام مشاريع لجنة سوريا</div><h1 id="title"></h1></div><div class="who"><a href="#" class="tbtn themebtn" id="themeBtn" data-tour="theme" title="الوضع: تلقائي (حسب الجهاز) ← فاتح ← داكن" onclick="cycleTheme();return false">🖥 تلقائي</a><a href="#" class="tbtn" data-tour="password" onclick="changePw();return false">كلمة المرور</a><a href="#" class="tbtn" data-tour="logout" onclick="doLogout();return false">خروج</a><a href="#" class="whocap" title="الإعدادات" onclick="go('profile');return false"><span id="who" data-tour="who"></span><span class="whoav" id="whoav" aria-hidden="true"></span></a></div></div><div id="view"></div></main>
+  <main><div class="phead"><img data-logo alt=""><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div></div><div class="top"><div class="ttl"><div class="crumb">نظام مشاريع لجنة سوريا</div><h1 id="title"></h1></div><div class="tacts" id="tacts"></div><div class="who"><a href="#" class="tbtn themebtn" id="themeBtn" data-tour="theme" title="الوضع: تلقائي (حسب الجهاز) ← فاتح ← داكن" onclick="cycleTheme();return false">🖥 تلقائي</a><a href="#" class="tbtn" data-tour="password" onclick="changePw();return false">كلمة المرور</a><a href="#" class="tbtn" data-tour="logout" onclick="doLogout();return false">خروج</a><a href="#" class="tbtn bell" data-tour="nav-notifications" title="الإشعارات" aria-label="الإشعارات" onclick="go('notifications');return false"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge hidden" id="nb"></span></a><a href="#" class="whocap" title="الإعدادات" onclick="go('profile');return false"><span id="who" data-tour="who"></span><span class="whoav" id="whoav" aria-hidden="true"></span></a></div></div><div id="view"></div></main>
 </div>
 <button id="chatbtn" class="hidden noprint" data-tour="chat" onclick="chatToggle()" aria-label="المساعد" title="المساعد: اسأل عن المشاريع"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>المساعد</span></button>
 <div id="chat" class="hidden noprint" role="dialog" aria-label="المساعد"></div>
@@ -1456,15 +1463,15 @@ const TOUR = {
       _: 'السلف بين مشاريع الجهة نفسها: الطلب، والاعتماد، والسداد.',
       accountant: 'اعتمد طلبات إعادة التوجيه أو ارفضها بسبب، وسجّل سداد السلف.',
       entity: 'اطلب نقل مبلغ مؤقتاً من مشروع إلى مشروع آخر لجهتك، ويعتمده المحاسب.' } },
-    { el: 'nav-entities', title: 'الجهات المنفذة', text: {
+    { el: 'nav-profile', title: 'الجهات المنفذة (من الإعدادات)', text: {
       _: 'الجهات المنفذة وحالة اعتمادها ونطاق عملها (الدول).',
       projects: 'أضف الجهات وعدّل بياناتها ونطاق عملها، وحدّد حالة اعتمادها لدى اللجنة.',
       entity: 'بيانات جهتك المسجّلة في النظام.' } },
     { el: 'nav-users', title: 'المستخدمون', text: 'حسابات المستخدمين وأدوارهم، وتوليد كلمة مرور مؤقتة، ومنع عمليات بعينها عن مستخدم.' },
     { el: 'nav-audit', title: 'سجل التدقيق', text: 'من فعل ماذا ومتى في النظام، مع البحث بالمستخدم والجدول والتاريخ.' },
-    { el: 'nav-notifications', title: 'الإشعارات', text: 'إشعاراتك داخل النظام، ويظهر عدد غير المقروء بجانبها.' },
+    { el: 'nav-notifications', title: 'الإشعارات', text: 'جرس الإشعارات بجوار اسمك أعلى الصفحة، وعليه عدد غير المقروء.' },
     { el: 'nav-backup', title: 'النسخ الاحتياطي', text: 'نسخة احتياطية فورية قبل أي عمل كبير، وقائمة النسخ اليومية.' },
-    { el: 'nav-guide', title: 'دليل المستخدم', text: 'شرح دورك في النظام: ما تستطيعه وما لا تستطيعه، وخطوات كل مهمة بأمثلة. ومنه تعيد هذه الجولة متى شئت.' },
+    { el: 'nav-profile', title: 'دليل المستخدم (من الإعدادات)', text: 'شرح دورك في النظام: ما تستطيعه وما لا تستطيعه، وخطوات كل مهمة بأمثلة. تجده في «الإعدادات» مع الجهات المنفذة، ومنها تعيد هذه الجولة.' },
     { el: 'nav-profile', title: 'الإعدادات', text: {
       _: 'صورتك وبياناتك، وتغيير كلمة المرور، والوضع الفاتح أو الداكن، وإعادة الجولة.',
       projects: 'صورتك وبياناتك، وصورة توقيعك على طلب الدعم، وكلمة المرور، والوضع الفاتح أو الداكن.',
@@ -1619,8 +1626,8 @@ async function boot(user,pre){
 }
 /** ترتيب القائمة الجانبية = ترتيب المفاتيح هنا (العنصر الرابع 1 = صفحة لا تظهر في القائمة، مثل كشف الحساب) */
 const PAGES={dashboard:['لوحة الإدارة',()=>true,pgDashboard],projects:['المشاريع',()=>true,pgProjects],reports:['التقارير',()=>can('reports','view'),pgReports],
- donors:['المتبرعون',()=>can('donors','view'),pgDonors],donations:['التبرعات',()=>can('donations','view'),pgDonations],payments:['الصرف والتحويلات',()=>can('payments','view'),pgPayments],balances:['أرصدة الحسابات',()=>can('balances','view'),pgBalances],balmoves:['كشف حساب',()=>can('balances','view'),pgStatement,1],transfers:['الحوالات',()=>can('payments','view'),pgTransfers],redirections:['إعادة التوجيه',()=>can('redirections','view'),pgRedirections],entities:['الجهات المنفذة',()=>true,pgEntities],
- users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit],notifications:['الإشعارات',()=>true,pgNotifs],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup],guide:['دليل المستخدم',()=>true,pgGuide],profile:['الإعدادات',()=>true,pgProfile]};
+ donors:['المتبرعون',()=>can('donors','view'),pgDonors],donations:['التبرعات',()=>can('donations','view'),pgDonations],payments:['الصرف والتحويلات',()=>can('payments','view'),pgPayments],balances:['أرصدة الحسابات',()=>can('balances','view'),pgBalances],balmoves:['كشف حساب',()=>can('balances','view'),pgStatement,1],transfers:['الحوالات',()=>can('payments','view'),pgTransfers],redirections:['إعادة التوجيه',()=>can('redirections','view'),pgRedirections],entities:['الجهات المنفذة',()=>true,pgEntities,1],
+ users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit],notifications:['الإشعارات',()=>true,pgNotifs,1],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup],guide:['دليل المستخدم',()=>true,pgGuide,1],profile:['الإعدادات',()=>true,pgProfile]};
 /** أيقونات القائمة (خطوط بسيطة، لون النص نفسه) */
 const NAVI={dashboard:'<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>',
  projects:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',reports:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
@@ -1640,7 +1647,8 @@ const SKEL='<div class="skel" role="status" aria-label="جارٍ التحميل�
 async function go(p){VC_NAV++;
   if(!PAGES[p]||!PAGES[p][1]())p='dashboard';location.hash=p;
   if(p!=='dashboard'&&document.body.classList.contains('dscreen'))dashScreen(0);
-  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+  const navp=p==='guide'||p==='entities'?'profile':p;document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===navp));
+  const ta=$('#tacts');if(ta)ta.innerHTML='';   // أزرار رأس الصفحة تضعها الصفحة نفسها (المشاريع)
   charts.forEach(c=>c.destroy());charts=[];$('#title').textContent=PAGES[p][0];$('#view').innerHTML=SKEL;
   try{await PAGES[p][2]();const h=hintHtml(p);if(h)$('#view').insertAdjacentHTML('afterbegin',h)}catch(e){$('#view').innerHTML=`<div class="note">${esc(e.message)}</div>`}
 }
@@ -1940,14 +1948,14 @@ const FS={balances:{page:1},balmoves:{page:1},transfers:{page:1},redirections:{p
 const optOf=o=>({v:o.id!==undefined?o.id:(o.v!==undefined?o.v:o),l:o.name!==undefined?o.name:(o.l!==undefined?o.l:o)});
 /** fields: [{k, label, type:'text'|'select'|'date', options, w}] ، right: أزرار تظهر بجانب الشريط */
 const SBF={};
-function sbar(pg,fields,right){const F=FS[pg];SBF[pg]=fields;
+function sbar(pg,fields,right,opt){const F=FS[pg];SBF[pg]=fields;
   const fld=f=>{const v=F[f.k]==null?'':F[f.k],lb=esc(f.desc||(f.type==='select'||f.type==='date'||f.type==='number'?f.label:'بحث'));
     const W=c=>`<div class="sbf" style="max-width:${(f.w||(f.type==='select'?190:f.type==='number'?150:280))+10}px"><label>${lb}</label>${c}</div>`;
     if(f.type==='select')return W(`<select data-k="${f.k}"><option value="">${esc(f.label)}</option>${(f.options||[]).map(optOf).map(o=>`<option value="${esc(o.v)}" ${String(v)===String(o.v)?'selected':''}>${esc(o.l)}</option>`).join('')}</select>`);
     if(f.type==='date')return W(`<input type="date" data-k="${f.k}" value="${esc(v)}">`);
     if(f.type==='number')return W(`<input type="number" class="num" inputmode="decimal" step="any" min="0" data-k="${f.k}" placeholder="0" value="${esc(v)}">`);
     return W(`<input data-k="${f.k}" placeholder="${esc(f.label)}" value="${esc(v)}">`)};
-  return `<div class="top"><form class="sbar" onsubmit="return sbGo(event,'${pg}')">${fields.map(fld).join('')}<button class="btn sm">بحث</button><button type="button" class="btn sm sec" onclick="sbClear('${pg}')">مسح</button></form>${right?`<div class="tbar">${right}</div>`:''}</div>`}
+  return `<div class="top"><form class="sbar${opt&&opt.one?' one':''}" onsubmit="return sbGo(event,'${pg}')">${fields.map(fld).join('')}<div class="sbbtn"><button class="btn sm">بحث</button><button type="button" class="btn sm sec" onclick="sbClear('${pg}')">مسح</button></div></form>${right?`<div class="tbar">${right}</div>`:''}</div>`}
 function sbGo(e,pg){e.preventDefault();const F=FS[pg];e.target.querySelectorAll('[data-k]').forEach(el=>{F[el.dataset.k]=el.value.trim()});F.page=1;go(pg);return false}
 function sbClear(pg){FS[pg]={page:1};go(pg)}
 function pager(pg,r,unit){const pages=Math.max(1,Math.ceil(r.total/r.size));
@@ -2007,7 +2015,7 @@ async function expRun(key,mode){const x=EXPORTS[key];toast('جارٍ تجهيز 
     const blob=XL.book([{name:x.title,rows,bold:[0,rows.length-1]},{name:'الفلاتر',rows:meta,bold:[0]}]);
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=x.file()+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);return}
   const cell=(c,r)=>{const v=expVal(c,r);return c.num?(v===null?'—':fmt(v)):esc(v||'—')};
-  $('#printArea').innerHTML=`<style>@page{size:A4 landscape;margin:10mm}</style><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><img src="${LOGO}" style="height:60px"><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div><h1 style="margin-inline-start:auto">${esc(x.title)}</h1></div>
+  $('#printArea').innerHTML=`<style>@page{size:A4 landscape;margin:10mm}#printArea tfoot{display:table-row-group}</style><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><img src="${LOGO}" style="height:60px"><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div><h1 style="margin-inline-start:auto">${esc(x.title)}</h1></div>
   <table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr>${cols.map(c=>`<th>${esc(c.h)}</th>`).join('')}</tr></thead><tbody>${d.rows.map(r=>`<tr>${cols.map(c=>`<td>${cell(c,r)}</td>`).join('')}</tr>`).join('')}</tbody>
   <tfoot><tr>${tot.map(v=>`<th>${typeof v==='number'?fmt(v):esc(v)}</th>`).join('')}</tr></tfoot></table>
   <div style="margin-top:8px;font-size:11px"><b>العدد:</b> ${d.count} · <b>الفلاتر:</b> ${flt.length?flt.map(f=>esc(f[0])+': '+esc(f[1])).join(' · '):'بلا فلاتر'}</div>
@@ -2074,7 +2082,8 @@ async function execReport(all){if(all!==undefined)EXRALL=all?1:0;const d=await a
 async function pgProjects(){
   const r=await apiC('projects.list',PQ.projects()),lk=can('allocations','view');
   const fields=projFilterFields();
-  $('#view').innerHTML=`<div class="card">${sbar('projects',fields,(ME.role==='entity'?'':'<button class="btn sm sec" onclick="execReport()">الشركاء الميدانيون</button> ')+(can('outputs','manageItems')?'<button class="btn sm sec" onclick="outItemsMgr()">قائمة البنود</button> ':'')+expBar('projects')+(can('projects','create')?' <button class="btn" onclick="newProject()">+ مشروع جديد</button>':''))}
+  if(location.hash==='#projects'&&$('#tacts'))$('#tacts').innerHTML=(ME.role==='entity'?'':'<button class="btn sm sec" onclick="execReport()">الشركاء الميدانيون</button>')+expBar('projects')+(can('projects','create')?'<button class="btn sm" onclick="newProject()">+ مشروع جديد</button>':'');   // بجوار عنوان الصفحة
+  $('#view').innerHTML=`<div class="card">${sbar('projects',fields,'',{one:1})}
   ${tbl(['#','تاريخ التسجيل','المشروع','الجهة','الشريك الميداني','الدولة','القطاع','النوع','الحالة',...(lk?['نسبة التوثيق']:[]),'نسبة الإنجاز','السنة','المطلوب $','المطلوب د.ك','المعتمد $','المصروف $',''],r.rows.map(p=>`<tr class="click" onclick="openProject(${Number(p.id)})"><td>${p.id}</td><td style="white-space:nowrap">${esc(String(p.reg_date||'').slice(0,10))||'—'}</td><td>${esc(p.name)}</td><td>${esc(p.entity_name)}</td><td>${p.actual_executor_name?esc(p.actual_executor_name):'—'}</td><td>${esc(p.region)}</td><td>${esc(p.sector)}</td><td>${esc(p.type)||'—'}</td><td>${pill(p.status)}</td>${lk?`<td style="min-width:90px">${p.doc_pct==null?'—':`<div class="pbar"><i style="width:${Number(p.doc_pct)||0}%"></i></div><span class="who">${Number(p.doc_pct)||0}%</span>`}</td>`:''}<td style="min-width:90px">${p.progress_pct===''||p.progress_pct==null?'—':`<div class="pbar"><i style="width:${Math.min(100,Number(p.progress_pct)||0)}%"></i></div><span class="who">${Number(p.progress_pct)||0}%</span>`}</td><td>${esc(p.fiscal_year)}</td><td>${fmt(p.requested_usd)}</td><td>${fmt(p.requested_kwd)}</td><td>${fmt(p.approved_usd)}</td><td>${p.paid_usd===undefined?'':fmt(p.paid_usd)}</td><td style="white-space:nowrap" onclick="event.stopPropagation()"><button class="ico" title="عرض" aria-label="عرض" onclick="openProject(${Number(p.id)})">${IC.eye}</button><button class="ico" title="طباعة طلب الدعم" aria-label="طباعة" onclick="printProjectById(${Number(p.id)})">${IC.print}</button>${can('projects','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="editProject(${Number(p.id)})">${IC.edit}</button>`:''}</td></tr>`))}
   ${pager('projects',r,'مشروع')}</div>`;
 }
@@ -2248,6 +2257,7 @@ async function pgProfile(){const u=await api('profile.get');const th=(ME.guide&&
    <div class="row" style="margin-top:10px"><button type="button" class="btn sec sm" onclick="$('#avfile').click()">${u.avatar?'تغيير الصورة':'إضافة صورة'}</button>${u.avatar?'<button type="button" class="btn sec sm" onclick="saveAvatar(null)">حذف الصورة</button>':''}<input type="file" id="avfile" accept="image/*" class="hidden" onchange="saveAvatar(this.files[0])"></div></div></div>
    <div class="kv" style="margin-top:14px"><b>اسم المستخدم</b><span dir="ltr" style="text-align:right">${esc(u.username)}</span><b>البريد</b><span>${esc(u.email||'—')}</span></div>
    <div class="note">تظهر صورتك في أعلى الصفحة. تُقص مربعة وتُصغَّر تلقائياً.</div></div>
+  <div class="card"><h3>الدليل والقوائم</h3><p class="who" style="margin-top:0">دليل استخدام النظام لدورك، والجهات المنفذة${can('outputs','manageItems')?'، وقائمة بنود المشاريع':''}.</p><div class="row"><button type="button" class="btn sec" onclick="go('guide')">دليل المستخدم</button><button type="button" class="btn sec" onclick="go('entities')">الجهات المنفذة</button>${can('outputs','manageItems')?'<button type="button" class="btn sec" onclick="outItemsMgr()">قائمة البنود</button>':''}</div></div>
   <div class="card"><h3>الأمان</h3><p class="who" style="margin-top:0">كلمة المرور 10 أحرف على الأقل. بعد تغييرها تُغلق جلساتك على الأجهزة الأخرى، ويعرض متصفحك تحديث الكلمة المحفوظة.</p><button type="button" class="btn sec" onclick="changePw()">تغيير كلمة المرور</button></div>
   <div class="card"><h3>المظهر</h3><div class="thgrid">${opt('auto','تلقائي','حسب إعداد جهازك')}${opt('light','فاتح','خلفية بيضاء')}${opt('dark','داكن','مريح ليلاً')}</div><div class="note">يُحفظ في حسابك فيتبعك على أي جهاز.</div></div>
   <div class="card"><h3>الجولة التعريفية والتلميحات</h3><p class="who" style="margin-top:0">أعد مشاهدة الجولة التي تشرح صفحاتك، أو أظهر التلميحات التي أغلقتها.</p><div class="row"><button type="button" class="btn sec" onclick="startTour()">ابدأ الجولة التعريفية</button><button type="button" class="btn sec" onclick="resetGuide()">إظهار التلميحات من جديد</button></div></div>
