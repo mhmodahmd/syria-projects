@@ -3,10 +3,11 @@
 <head>
 <base target="_top">
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com data: blob:; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"><meta name="referrer" content="strict-origin-when-cross-origin">
 <script>if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.innerHTML=""}}
 window.API_URL="https://script.google.com/macros/s/AKfycbxq3MlxMA09zHsAMWBvuNCc5YxZC9L_7fA2Yb0JAlGAJo7cdZyoaZKVd2nGawBZL4dT/exec";
 if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});</script>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1E7F4F"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="مشاريع سوريا">
+<link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1E7F4F"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="مشاريع سوريا">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظام مشاريع لجنة سوريا</title>
@@ -100,6 +101,19 @@ tr.click{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media print{#loading{display:none!important}}
 /* مؤشر خفيف للتحديث الخلفي لنسخة معروضة من ذاكرة التبويب (لا يمنع الضغط) */
+/* صورة المستخدم وصفحة الإعدادات */
+.whoav{width:32px;height:32px;border-radius:50%;overflow:hidden;display:inline-grid;place-items:center;vertical-align:middle;margin-inline-end:8px;background:var(--soft);text-decoration:none;flex:none}
+.whoav img,.avbig img{width:100%;height:100%;object-fit:cover;display:block}
+.avl{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,var(--pri),var(--gd));color:#fff;font-weight:700}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:14px;align-items:start}
+.setgrid .card{margin:0}.setgrid h3{margin-top:0}
+.avrow{display:flex;gap:16px;align-items:center}.avinfo{min-width:0}
+.avbig{width:88px;height:88px;border-radius:50%;overflow:hidden;flex:none;box-shadow:0 0 0 4px var(--soft);font-size:34px}
+.thgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.thopt{margin:0;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;color:var(--ink);font-weight:400;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,background .2s}
+.thopt input{position:absolute;opacity:0;width:1px;height:1px}.thopt small{color:var(--mut);font-size:12px}
+.thopt.on{border-color:var(--pri);background:var(--soft)}.thopt:focus-within{box-shadow:var(--focus)}
+@media (max-width:520px){.thgrid{grid-template-columns:1fr}}
 /* بطاقة تثبيت النظام تطبيقاً (نسخة GitHub) */
 #pwacard{position:fixed;z-index:400;inset-inline:16px;bottom:16px;max-width:480px;margin-inline:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px;display:flex;gap:12px;align-items:center;animation:pwain .35s ease-out}
 #pwacard img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex:none}
@@ -232,7 +246,7 @@ body.dscreen #scrx{display:block;position:fixed;top:12px;left:12px;z-index:40}
 <div id="vcbusy" class="hidden" role="status" aria-live="polite">جارٍ التحديث…</div>
 <div id="app" class="hidden">
   <aside><div class="logo-badge"><img data-logo alt="الشعار"></div><h2>نظام مشاريع<br>لجنة سوريا</h2><nav id="nav"></nav></aside>
-  <main><div class="phead"><img data-logo alt=""><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div></div><div class="top"><h1 id="title"></h1><div class="who"><span id="who" data-tour="who"></span> · <a href="#" class="themebtn" id="themeBtn" data-tour="theme" title="الوضع: تلقائي (حسب الجهاز) ← فاتح ← داكن" onclick="cycleTheme();return false">🖥 تلقائي</a> · <a href="#" data-tour="password" onclick="changePw();return false">كلمة المرور</a> · <a href="#" data-tour="logout" onclick="doLogout();return false">خروج</a></div></div><div id="view"></div></main>
+  <main><div class="phead"><img data-logo alt=""><div><b>نظام مشاريع لجنة سوريا</b><br>جمعية إحياء التراث الإسلامي</div></div><div class="top"><h1 id="title"></h1><div class="who"><a href="#profile" class="whoav" id="whoav" title="الإعدادات" aria-label="الإعدادات"></a><span id="who" data-tour="who"></span> · <a href="#" class="themebtn" id="themeBtn" data-tour="theme" title="الوضع: تلقائي (حسب الجهاز) ← فاتح ← داكن" onclick="cycleTheme();return false">🖥 تلقائي</a> · <a href="#" data-tour="password" onclick="changePw();return false">كلمة المرور</a> · <a href="#" data-tour="logout" onclick="doLogout();return false">خروج</a></div></div><div id="view"></div></main>
 </div>
 <button id="chatbtn" class="hidden noprint" data-tour="chat" onclick="chatToggle()" aria-label="المساعد" title="المساعد: اسأل عن المشاريع"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>المساعد</span></button>
 <div id="chat" class="hidden noprint" role="dialog" aria-label="المساعد"></div>
@@ -1412,10 +1426,10 @@ const TOUR = {
     { el: 'nav-notifications', title: 'الإشعارات', text: 'إشعاراتك داخل النظام، ويظهر عدد غير المقروء بجانبها.' },
     { el: 'nav-backup', title: 'النسخ الاحتياطي', text: 'نسخة احتياطية فورية قبل أي عمل كبير، وقائمة النسخ اليومية.' },
     { el: 'nav-guide', title: 'دليل المستخدم', text: 'شرح دورك في النظام: ما تستطيعه وما لا تستطيعه، وخطوات كل مهمة بأمثلة. ومنه تعيد هذه الجولة متى شئت.' },
-    { el: 'nav-profile', title: 'الملف الشخصي', text: {
-      _: 'بياناتك وتغيير كلمة المرور.',
-      projects: 'بياناتك، وصورة توقيعك على طلب الدعم، وتغيير كلمة المرور.',
-      accountant: 'بياناتك، وصورة توقيعك على طلب الدعم، وتغيير كلمة المرور.' } },
+    { el: 'nav-profile', title: 'الإعدادات', text: {
+      _: 'صورتك وبياناتك، وتغيير كلمة المرور، والوضع الفاتح أو الداكن، وإعادة الجولة.',
+      projects: 'صورتك وبياناتك، وصورة توقيعك على طلب الدعم، وكلمة المرور، والوضع الفاتح أو الداكن.',
+      accountant: 'صورتك وبياناتك، وصورة توقيعك على طلب الدعم، وكلمة المرور، والوضع الفاتح أو الداكن.' } },
     { el: 'theme', title: 'الوضع الفاتح والداكن', text: 'بهذا الزر تختار الوضع: تلقائي حسب جهازك، أو فاتح، أو داكن. يُحفظ اختيارك في حسابك فيتبعك على أي جهاز.' },
     { el: 'logout', title: 'الخروج', text: 'الخروج يُخرجك من النظام على كل الأجهزة والتبويبات المفتوحة بحسابك.' },
     { el: 'chat', title: 'المساعد', text: 'اسأل عن المشاريع بلغتك، مثل: «كم مشروعاً معتمداً في 2026؟» أو «المشروع رقم 120» أو «المشاريع المتأخرة بالتقرير»، أو اضغط سؤالاً جاهزاً. الأجوبة بحسب صلاحياتك.' },
@@ -1494,7 +1508,7 @@ const can=(r,a)=>L&&L.perms[r]&&L.perms[r].indexOf(a)!==-1;
  * صفحة سبق فتحها في هذه الجلسة تُعرض فوراً من آخر نتيجة (متغير في الصفحة فقط؛ البيانات لا تُحفظ في تخزين المتصفح)،
  * ثم تُطلب من الخادم في الخلفية وتُستبدل إن تغيّرت. المفتاح: الإجراء والفلاتر ورقم الصفحة.
  * أي إجراء كتابة ناجح (VC_WRITE = WRITE_ACTIONS في Api.gs، واختبار يُبقيهما متطابقتين) والخروج يمسحان الذاكرة كلها */
-const VC_WRITE=new Set(['changePassword','notifications.read','projects.create','projects.update','projects.archive','projects.sign','profile.signature','profile.guide','entities.create','entities.update','entities.archive','files.upload','files.archive','reports.review','reports.create','reports.update','reports.archive','donors.statement','donorfile.get','donors.create','donors.update','donors.archive','donors.merge','donors.unmerge','donors.report','donations.create','donations.report','donations.update','donations.archive','allocations.create','allocations.update','allocations.archive','transfers.create','transfers.update','transfers.distribute','transfers.link','transfers.upload','transfers.archive','transfers.fund','transfers.releaseFunding','redirections.create','redirections.approve','redirections.reject','redirections.settle','redirections.finalize','redirections.archive','passthroughs.create','passthroughs.approve','passthroughs.reject','passthroughs.archive','payments.confirm','payments.setrate','payments.create','payments.update','payments.archive','outputs.addItem','outputs.updateItem','outputs.set','balances.create','balances.update','balances.move','balances.transfer','balances.cancelExpense','balances.setStart','balances.archive','users.create','users.update','users.setdenied','users.setgranted','users.reset','users.archive']);
+const VC_WRITE=new Set(['changePassword','notifications.read','profile.avatar','projects.create','projects.update','projects.archive','projects.sign','profile.signature','profile.guide','entities.create','entities.update','entities.archive','files.upload','files.archive','reports.review','reports.create','reports.update','reports.archive','donors.statement','donorfile.get','donors.create','donors.update','donors.archive','donors.merge','donors.unmerge','donors.report','donations.create','donations.report','donations.update','donations.archive','allocations.create','allocations.update','allocations.archive','transfers.create','transfers.update','transfers.distribute','transfers.link','transfers.upload','transfers.archive','transfers.fund','transfers.releaseFunding','redirections.create','redirections.approve','redirections.reject','redirections.settle','redirections.finalize','redirections.archive','passthroughs.create','passthroughs.approve','passthroughs.reject','passthroughs.archive','payments.confirm','payments.setrate','payments.create','payments.update','payments.archive','outputs.addItem','outputs.updateItem','outputs.set','balances.create','balances.update','balances.move','balances.transfer','balances.cancelExpense','balances.setStart','balances.archive','users.create','users.update','users.setdenied','users.setgranted','users.reset','users.archive']);
 const VC=new Map();let VC_EPOCH=0,VC_SKIP=0,VC_NAV=0,VC_BUSY=0;
 /** المفتاح: الإجراء والمعاملات (الفلاتر ورقم الصفحة). اللوحة: الفترة والجهة (والتبويب) فقط، بلا fresh وحالة العرض */
 function vcKey(a,p){p=p||{};
@@ -1540,7 +1554,7 @@ function cycleTheme(){if(!ME)return;const cur=(ME.guide&&ME.guide.theme)||'auto'
   if(charts.length)go(location.hash.slice(1)||'dashboard')}   // الرسوم تُعاد بألوان الوضع الجديد
 async function doLogin(e){e.preventDefault();$('#lerr').textContent='';$('#lbtn').disabled=true;
   try{const u=$('#lu').value,p=$('#lp').value;const r=await api('login',{username:u,password:p});TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}
-    pwStore(u,p,r.user&&r.user.full_name);$('#lp').value='';await boot(r.user);}
+    pwStore(u,p,r.user&&r.user.full_name);$('#lp').value='';await boot(r.user,r.init);}
   catch(x){$('#lerr').textContent=x.message}finally{$('#lbtn').disabled=false}return false}
 /** حفظ كلمة المرور في مدير كلمات مرور المتصفح وتحديثها (Chrome وEdge وAndroid): بعد الدخول يعرض المتصفح «حفظ كلمة المرور»، وبعد التغيير أو الاستعادة «تحديثها».
  *  يعمل في نسخة GitHub (الصفحة نفسها في أعلى النافذة)؛ داخل إطار Google لا يتاح فلا يحدث شيء. pwUserField: خانة مخفية باسم الحساب في نموذج التغيير ليعرف المتصفح أي حساب يحدّث */
@@ -1555,11 +1569,11 @@ function forgotPw(){
 function doLogout(){const t=TOKEN;showLogin();if(t){try{callServer(t,'logout',{}).catch(()=>{})}catch(e){}}return false}
 async function changePw(){
   openForm('تغيير كلمة المرور',[{k:'old',label:'كلمة المرور الحالية',type:'password',req:1,ac:'current-password'},{k:'new',label:'كلمة المرور الجديدة (10 أحرف على الأقل)',type:'password',req:1,ac:'new-password'}],{},async d=>{const r=await api('changePassword',d);pwStore(ME.username,d.new,ME.full_name);if(r&&r.token){TOKEN=r.token;try{sessionStorage.setItem('tk',TOKEN)}catch(x){}}const was=ME.must_change;ME.must_change=false;toast('تم تغيير كلمة المرور');if(was){go(location.hash.slice(1)||'dashboard');tourAuto()}});pwUserField(ME&&ME.username);return false}
-async function boot(user){
-  const ini=await api('init');ME=ini.me;L=ini.lookups;   // طلب واحد: المستخدم والقوائم وعدد الإشعارات
+async function boot(user,pre){
+  const ini=pre&&pre.me&&pre.lookups?pre:await api('init');ME=ini.me;L=ini.lookups;   // طلب واحد: المستخدم والقوائم وعدد الإشعارات (بعد الدخول تصل مع ردّه فلا طلب)
   applyTheme(ME.guide&&ME.guide.theme);
   $('#login').classList.add('hidden');$('#app').classList.remove('hidden');
-  $('#who').textContent=ME.full_name+' — '+ME.role_label;buildNav(ini.unread);chatReset();
+  $('#who').textContent=ME.full_name+' — '+ME.role_label;ME.avatar=ini.avatar||'';showAvatar(ME.avatar);buildNav(ini.unread);chatReset();
   if(ME.must_change){toast('يرجى تغيير كلمة المرور المؤقتة');changePw()}
   const first=go(location.hash.slice(1)||'dashboard');
   if(!ME.must_change){tourAuto();first.then(()=>vcPrefetch())}
@@ -1567,7 +1581,7 @@ async function boot(user){
 /** ترتيب القائمة الجانبية = ترتيب المفاتيح هنا (العنصر الرابع 1 = صفحة لا تظهر في القائمة، مثل كشف الحساب) */
 const PAGES={dashboard:['لوحة الإدارة',()=>true,pgDashboard],projects:['المشاريع',()=>true,pgProjects],reports:['التقارير',()=>can('reports','view'),pgReports],
  donors:['المتبرعون',()=>can('donors','view'),pgDonors],donations:['التبرعات',()=>can('donations','view'),pgDonations],payments:['الصرف والتحويلات',()=>can('payments','view'),pgPayments],balances:['أرصدة الحسابات',()=>can('balances','view'),pgBalances],balmoves:['كشف حساب',()=>can('balances','view'),pgStatement,1],transfers:['الحوالات',()=>can('payments','view'),pgTransfers],redirections:['إعادة التوجيه',()=>can('redirections','view'),pgRedirections],entities:['الجهات المنفذة',()=>true,pgEntities],
- users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit],notifications:['الإشعارات',()=>true,pgNotifs],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup],guide:['دليل المستخدم',()=>true,pgGuide],profile:['الملف الشخصي',()=>true,pgProfile]};
+ users:['المستخدمون',()=>can('users','view'),pgUsers],audit:['سجل التدقيق',()=>can('audit','view'),pgAudit],notifications:['الإشعارات',()=>true,pgNotifs],backup:['النسخ الاحتياطي',()=>can('backup','view'),pgBackup],guide:['دليل المستخدم',()=>true,pgGuide],profile:['الإعدادات',()=>true,pgProfile]};
 function buildNav(unread){
   $('#nav').innerHTML=Object.keys(PAGES).filter(k=>PAGES[k][1]()&&!PAGES[k][3]).map(k=>`<a data-p="${k}" data-tour="nav-${k}" onclick="go('${k}')"><span>${PAGES[k][0]}</span>${k==='notifications'?'<span class="badge hidden" id="nb"></span>':''}</a>`).join('');
   setBadge(unread);
@@ -1605,7 +1619,7 @@ function tourPlace(){const c=$('#tourcard'),sp=$('#tourspot');if(!c||!sp)return;
   c.style.left=left+'px';c.style.top=Math.min(Math.max(8,top),H-ch-8)+'px'}
 function tourGo(d){TOUR_I+=d;if(TOUR_I>=TOUR_S.length)return tourEnd();if(TOUR_I<0)TOUR_I=0;tourShow()}
 function tourClose(){['#tourcard','#tourspot'].forEach(q=>{const e=$(q);if(e)e.remove()});TOUR_S=[]}
-/** الإنهاء أو التخطي: لا تظهر تلقائياً بعدها (تُعاد من «الملف الشخصي») */
+/** الإنهاء أو التخطي: لا تظهر تلقائياً بعدها (تُعاد من «الإعدادات») */
 function tourEnd(){tourClose();if(ME&&!(ME.guide&&ME.guide.tour)){ME.guide=Object.assign({hints:{}},ME.guide,{tour:true});api('profile.guide',{tour:true}).catch(()=>{})}}
 window.addEventListener('resize',tourPlace);window.addEventListener('scroll',tourPlace,true);
 document.addEventListener('keydown',e=>{if(!$('#tourcard'))return;if(e.key==='Escape')tourEnd();else if(e.key==='ArrowLeft')tourGo(1);else if(e.key==='ArrowRight'&&TOUR_I)tourGo(-1)});
@@ -2175,13 +2189,34 @@ function addFiles(pid){openForm('إضافة مرفقات',[{k:'files',label:'ا�
 const sigBox=(p,slot,label)=>{const s=(p.signatures||{})[slot],canS=(p.can_sign||{})[slot];
   return `<div class="sigcard"><b>${label}</b>${s?`${s.image?`<img src="${s.image}" alt="توقيع">`:'<div class="who">موقّع إلكترونياً</div>'}<div class="who">${esc(s.name)} — <bdi dir="ltr">${esc(String(s.at).slice(0,16))}</bdi></div>${s.can_undo?`<button class="btn sm sec" onclick="signProject(${Number(p.id)},'${slot}',1)">إلغاء التوقيع</button>`:''}`:(canS?`<button class="btn sm" onclick="signProject(${Number(p.id)},'${slot}',0)">توقيع</button>`:'<div class="who">لم يُوقَّع بعد</div>')}</div>`};
 async function signProject(id,slot,undo){if(undo&&!confirm('إلغاء التوقيع؟'))return;try{await once('sg'+id+slot,()=>api('projects.sign',{id,slot,undo}))}catch(e){alert(e.message);return}toast(undo?'أُلغي التوقيع':'تم التوقيع');openProject(id)}
-/** الملف الشخصي: البيانات، وتغيير كلمة المرور، وصورة التوقيع لمن يوقّع */
-async function pgProfile(){const u=await api('profile.get');
-  $('#view').innerHTML=`<div class="card"><div class="kv"><b>الاسم</b><span>${esc(u.full_name)}</span><b>اسم المستخدم</b><span dir="ltr" style="text-align:right">${esc(u.username)}</span><b>الدور</b><span>${esc(u.role_label)}</span>${u.entity_name?`<b>الجهة</b><span>${esc(u.entity_name)}</span>`:''}<b>البريد</b><span>${esc(u.email||'—')}</span></div>
-  <div class="row"><button class="btn sec" onclick="changePw()">تغيير كلمة المرور</button></div></div>
-  ${u.can_sign?`<div class="card" style="margin-top:14px"><h3>صورة التوقيع</h3><div class="note">تظهر صورة توقيعك في طباعة طلب الدعم المعتمد عند ضغطك «توقيع» في صفحة المشروع. استخدم صورة توقيع على خلفية بيضاء (PNG أو JPG)، وتُصغَّر تلقائياً.</div>
+/** الإعدادات: البيانات، وتغيير كلمة المرور، وصورة التوقيع لمن يوقّع */
+/** «الإعدادات» (كانت «الإعدادات»): الحساب والصورة، والأمان، والمظهر، والجولة والتلميحات، وصورة التوقيع لمن يوقّع */
+async function pgProfile(){const u=await api('profile.get');const th=(ME.guide&&ME.guide.theme)||'auto';
+  const opt=(v,l,d)=>`<label class="thopt${th===v?' on':''}"><input type="radio" name="theme" value="${v}" ${th===v?'checked':''} onchange="setTheme(this.value)"><b>${l}</b><small>${d}</small></label>`;
+  $('#view').innerHTML=`<div class="setgrid">
+  <div class="card"><h3>الحساب</h3><div class="avrow"><div class="avbig" id="avbig">${avHtml(u.avatar,u.full_name)}</div><div class="avinfo"><b>${esc(u.full_name)}</b><div class="who">${esc(u.role_label)}${u.entity_name?' · '+esc(u.entity_name):''}</div>
+   <div class="row" style="margin-top:10px"><button type="button" class="btn sec sm" onclick="$('#avfile').click()">${u.avatar?'تغيير الصورة':'إضافة صورة'}</button>${u.avatar?'<button type="button" class="btn sec sm" onclick="saveAvatar(null)">حذف الصورة</button>':''}<input type="file" id="avfile" accept="image/*" class="hidden" onchange="saveAvatar(this.files[0])"></div></div></div>
+   <div class="kv" style="margin-top:14px"><b>اسم المستخدم</b><span dir="ltr" style="text-align:right">${esc(u.username)}</span><b>البريد</b><span>${esc(u.email||'—')}</span></div>
+   <div class="note">تظهر صورتك في أعلى الصفحة. تُقص مربعة وتُصغَّر تلقائياً.</div></div>
+  <div class="card"><h3>الأمان</h3><p class="who" style="margin-top:0">كلمة المرور 10 أحرف على الأقل. بعد تغييرها تُغلق جلساتك على الأجهزة الأخرى، ويعرض متصفحك تحديث الكلمة المحفوظة.</p><button type="button" class="btn sec" onclick="changePw()">تغيير كلمة المرور</button></div>
+  <div class="card"><h3>المظهر</h3><div class="thgrid">${opt('auto','تلقائي','حسب إعداد جهازك')}${opt('light','فاتح','خلفية بيضاء')}${opt('dark','داكن','مريح ليلاً')}</div><div class="note">يُحفظ في حسابك فيتبعك على أي جهاز.</div></div>
+  <div class="card"><h3>الجولة التعريفية والتلميحات</h3><p class="who" style="margin-top:0">أعد مشاهدة الجولة التي تشرح صفحاتك، أو أظهر التلميحات التي أغلقتها.</p><div class="row"><button type="button" class="btn sec" onclick="startTour()">ابدأ الجولة التعريفية</button><button type="button" class="btn sec" onclick="resetGuide()">إظهار التلميحات من جديد</button></div></div>
+  ${u.can_sign?`<div class="card"><h3>صورة التوقيع</h3><div class="note">تظهر صورة توقيعك في طباعة طلب الدعم المعتمد عند ضغطك «توقيع» في صفحة المشروع. استخدم صورة توقيع على خلفية بيضاء (PNG أو JPG)، وتُصغَّر تلقائياً.</div>
   <div class="sigprev" id="sigprev">${u.signature?`<img src="${u.signature}" alt="توقيعي">`:'<span class="who">لا توجد صورة توقيع</span>'}</div>
-  <div class="row"><input type="file" id="sigfile" accept="image/png,image/jpeg" style="max-width:320px"><button class="btn" onclick="saveSignature()">حفظ التوقيع</button>${u.signature?'<button class="btn sec" onclick="saveSignature(1)">حذف التوقيع</button>':''}</div></div>`:''}`}
+  <div class="row"><input type="file" id="sigfile" accept="image/png,image/jpeg" style="max-width:320px"><button class="btn" onclick="saveSignature()">حفظ التوقيع</button>${u.signature?'<button class="btn sec" onclick="saveSignature(1)">حذف التوقيع</button>':''}</div></div>`:''}
+  </div>`}
+/** صورة المستخدم: الصورة إن وُجدت (data:image فقط)، وإلا أول حرف من الاسم على دائرة ملوّنة */
+function avHtml(img,name){return img&&String(img).indexOf('data:image/')===0?`<img src="${esc(img)}" alt="">`:`<span class="avl">${esc(String(name||'؟').trim().charAt(0)||'؟')}</span>`}
+function showAvatar(img){ME.avatar=img||'';const h=$('#whoav');if(h)h.innerHTML=avHtml(ME.avatar,ME.full_name);const b=$('#avbig');if(b)b.innerHTML=avHtml(ME.avatar,ME.full_name)}
+/** قص مربع من وسط الصورة وتصغيرها إلى 160×160 JPEG قبل الرفع (نحو 8–15 ألف حرف) */
+function shrinkAvatar(file){return new Promise((res,rej)=>{if(!file||String(file.type||'').indexOf('image/')!==0)return rej(new Error('اختر ملف صورة'));
+  const fr=new FileReader();fr.onerror=()=>rej(new Error('تعذّرت قراءة الصورة'));fr.onload=()=>{const im=new Image();im.onerror=()=>rej(new Error('الملف ليس صورة صالحة'));im.onload=()=>{
+    const S=160,c=document.createElement('canvas');c.width=S;c.height=S;const x=c.getContext('2d'),m=Math.min(im.width,im.height);
+    x.fillStyle='#fff';x.fillRect(0,0,S,S);x.imageSmoothingQuality='high';x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,S,S);
+    let q=.85,out=c.toDataURL('image/jpeg',q);while(out.length>28000&&q>.4){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};im.src=fr.result};fr.readAsDataURL(file)})}
+async function saveAvatar(file){try{const img=file?await shrinkAvatar(file):'';const r=await api('profile.avatar',{image:img});showAvatar(r.avatar);toast(img?'حُفظت الصورة':'حُذفت الصورة');pgProfile()}catch(e){alert(e.message)}}
+/** وضع العرض من صفحة الإعدادات (مثل زر الرأس): يُطبَّق فوراً ويُحفظ في الحساب */
+function setTheme(t){if(!ME||!THEMES[t])return;ME.guide=Object.assign({hints:{}},ME.guide,{theme:t});applyTheme(t);api('profile.guide',{theme:t}).catch(()=>{});document.querySelectorAll('.thopt').forEach(l=>l.classList.toggle('on',l.querySelector('input').value===t))}
 /** تصغير صورة التوقيع في المتصفح قبل رفعها (≤ 420×160، وJPEG على خلفية بيضاء إن بقيت كبيرة) */
 function shrinkSignature(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=()=>rej(new Error('تعذّرت قراءة الصورة'));fr.onload=()=>{const im=new Image();im.onerror=()=>rej(new Error('الملف ليس صورة صالحة'));im.onload=()=>{
   let sc=Math.min(1,420/im.width,160/im.height),out='';
