@@ -2320,14 +2320,14 @@ function shrinkSignature(file){return new Promise((res,rej)=>{const fr=new FileR
   rej(new Error('الصورة كبيرة جداً حتى بعد التصغير'))};im.src=fr.result};fr.readAsDataURL(file)})}
 async function saveSignature(remove){let img='';if(!remove){const f=$('#sigfile').files[0];if(!f)return alert('اختر صورة التوقيع');try{img=await shrinkSignature(f)}catch(e){return alert(e.message)}}else if(!confirm('حذف صورة التوقيع؟'))return;
   try{await once('sig',()=>api('profile.signature',{image:img}))}catch(e){return alert(e.message)}toast(remove?'حُذف التوقيع':'حُفظ التوقيع');go('profile')}
-/** أقسام طلب الدعم التي يختار المستخدم إخفاءها قبل الطباعة (لا يُحفظ الاختيار: الكل معلَّم في كل مرة). لا يُعرض إلا ما سيظهر فعلاً لهذا المشروع */
-function printSections(p){const exe=p.status==='معتمد';return [['hd','الرأس (الشعار والعنوان والحالة)',1],['info','بيانات المشروع',1],['dur','المدة والمستفيدون',1],['site','الموقع والترخيص والعقد',1],['money','المبالغ',1],
-  ['exe','التنفيذ',exe],['reps','جدول التقارير',(p.reports||[]).length],['als','جدول المتبرعين الموثّقين',ME.role!=='entity'&&(p.allocations||[]).length],['pays','جدول الدفعات',exe&&(p.payments||[]).length],
-  ['sigs','التوقيعات',1],['ft','التذييل (تاريخ الطباعة ومن طبع)',1]].filter(x=>x[2])}
+/** ما يتحكم فيه المستخدم عند طباعة طلب الدعم (طلب محمود 2026-11-17): الدولة، الشريك الميداني، الموقع والترخيص والعقد، المبالغ، المتبرعون، الدفعات،
+ *  التوقيعات، التنفيذ؛ وما سواها يُطبع تلقائياً. لا يُعرض إلا ما سيظهر لهذا المشروع، والكل معلَّم في كل مرة (لا يُحفظ الاختيار) */
+function printSections(p){const exe=p.status==='معتمد';return [['region','الدولة',!!p.region],['partner','الشريك الميداني',!!p.actual_executor_name],['site','الموقع والترخيص والعقد',1],['money','المبالغ',1],
+  ['als','المتبرعون',ME.role!=='entity'&&(p.allocations||[]).length],['pays','الدفعات',exe&&(p.payments||[]).length],['sigs','التوقيعات',1],['exe','التنفيذ',exe]].filter(x=>x[2])}
 /** نافذة الخيارات: طبقة فوق صفحة المشروع (لا تغلقها)، ثم الطباعة بالأقسام المعلَّمة */
 function printAsk(){const p=CUR;if(!p)return;printClose();
   const d=document.createElement('div');d.id='prdlg';d.className='modal';d.style.zIndex='70';
-  d.innerHTML=`<div class="box" style="max-width:560px"><h2>طباعة طلب الدعم</h2><div class="note">أزل علامة ما لا تريد ظهوره في الورقة المطبوعة. لا يتغيّر شيء في بيانات المشروع.</div>
+  d.innerHTML=`<div class="box" style="max-width:560px"><h2>طباعة طلب الدعم</h2><div class="note">أزل علامة ما لا تريد ظهوره في الورقة المطبوعة. بقية الطلب (بيانات المشروع والمدة والمستفيدون والتقارير) يُطبع دائماً، ولا يتغيّر شيء في بيانات المشروع.</div>
   <div class="prsel">${printSections(p).map(x=>`<label><input type="checkbox" data-sec="${x[0]}" checked> ${x[1]}</label>`).join('')}</div>
   <div class="err" id="prerr"></div>
   <div class="row"><button type="button" class="btn" onclick="printGo()">طباعة</button><button type="button" class="btn sec" onclick="printAll(1)">تحديد الكل</button><button type="button" class="btn sec" onclick="printAll(0)">إلغاء التحديد</button><button type="button" class="btn sec" onclick="printClose()">إغلاق</button></div></div>`;
@@ -2352,17 +2352,17 @@ function printProject(hide){const p=CUR;if(!p)return;const H=hide||{},on=k=>!H[k
   .pp h3{font-size:15px;background:#eaf1f3;color:#1f4e5f;padding:4px 10px;border-radius:6px;margin:10px 0 6px;break-after:avoid}.pp .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0}.pp .f{display:flex;align-items:baseline;gap:8px;border:1px solid #cfdadf;border-radius:6px;padding:5px 8px;min-height:34px;break-inside:avoid}.pp .f b{flex:none;font-size:11px;color:#6b8791;font-weight:600}.pp .f span{flex:1;font-size:14px;white-space:pre-wrap;word-break:break-word}.pp .w2{grid-column:span 2}.pp .w4{grid-column:1/-1}.pp .st .f{display:block;text-align:center}.pp .st .f b{display:block;margin-bottom:2px}.pp .st .f span{display:block;font-size:15px;font-weight:700}
   .pp table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px}#printArea .pp th{background:#1f4e5f;color:#fff;border:1px solid #1f4e5f;padding:4px;font-weight:600}#printArea .pp td{border:1px solid #cfdadf;padding:3px 5px}.pp tr{break-inside:avoid}
   .pp .sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;break-inside:avoid}.pp .sg{border:1px solid #cfdadf;border-radius:8px;height:130px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:6px}.pp .sg b{color:#1f4e5f}.pp .sg img{max-height:62px;max-width:92%}.pp .sg small{color:#56707a;font-size:12px}.pp .ft{margin-top:10px;padding-top:6px;border-top:1px solid #cfdadf;font-size:11px;color:#7a8f97;display:flex;justify-content:space-between}</style>
-  <div class="pp">${on('hd')?`<div class="hd"><img src="${LOGO}" alt=""><div class="ttl"><h1>نموذج طلب دعم مشروع</h1><div class="sub2">جمعية إحياء التراث الإسلامي — لجنة سوريا</div></div><span class="stbadge">${esc(v(p.status))}</span></div>`:''}
-  ${on('info')?`<h3>بيانات المشروع</h3><div class="grid">${F('رمز المشروع',p.id)}${F('رقم المشروع',p.project_no)}${F('تاريخ التسجيل',String(p.reg_date||'').slice(0,10))}${F('السنة المالية',p.fiscal_year)}
-   ${F('اسم المشروع',p.name,'w4')}${F('القطاع',p.sector)}${F('النوع',p.type)}${F('الدولة',p.region)}${F('الحالة',p.status)}
-   ${F('الجهة المنفذة',p.entity_name,p.actual_executor_name?'w2':'w4')}${p.actual_executor_name?F('الشريك الميداني',p.actual_executor_name,'w2'):''}${p.partnership_note?F('ملاحظات الشراكة',p.partnership_note,'w4'):''}</div>`:''}
-  ${on('dur')?`<h3>المدة والمستفيدون</h3><div class="grid">${F('تاريخ البدء',p.start)}${F('تاريخ الانتهاء',p.end)}${F('المستفيدون (أفراد)',money(p.ben_individuals))}${F('المستفيدون (أسر)',money(p.ben_families))}</div>`:''}
+  <div class="pp"><div class="hd"><img src="${LOGO}" alt=""><div class="ttl"><h1>نموذج طلب دعم مشروع</h1><div class="sub2">جمعية إحياء التراث الإسلامي — لجنة سوريا</div></div><span class="stbadge">${esc(v(p.status))}</span></div>
+  <h3>بيانات المشروع</h3><div class="grid">${F('رمز المشروع',p.id)}${F('رقم المشروع',p.project_no)}${F('تاريخ التسجيل',String(p.reg_date||'').slice(0,10))}${F('السنة المالية',p.fiscal_year)}
+   ${F('اسم المشروع',p.name,'w4')}${F('القطاع',p.sector)}${F('النوع',p.type)}${on('region')?F('الدولة',p.region):''}${F('الحالة',p.status)}
+   ${F('الجهة المنفذة',p.entity_name,p.actual_executor_name&&on('partner')?'w2':'w4')}${p.actual_executor_name&&on('partner')?F('الشريك الميداني',p.actual_executor_name,'w2'):''}${p.partnership_note&&on('partner')?F('ملاحظات الشراكة',p.partnership_note,'w4'):''}</div>
+  <h3>المدة والمستفيدون</h3><div class="grid">${F('تاريخ البدء',p.start)}${F('تاريخ الانتهاء',p.end)}${F('المستفيدون (أفراد)',money(p.ben_individuals))}${F('المستفيدون (أسر)',money(p.ben_families))}</div>
   ${on('site')?`<h3>الموقع والترخيص والعقد</h3><div class="grid">${F('رقم الترخيص',p.license_no,'w2')}${F('النسبة الإدارية للجهة',adminTxt(p),'w2')}${F('عقد المشروع',p.has_contract?'مرفق ✓':'غير مرفق','w2')}${F('موقع المشروع على الخريطة',p.map_url,'w4')}</div>`:''}
   ${on('money')?`<h3>المبالغ</h3><div class="grid st">${F('التكلفة المطلوبة ($)',money(p.requested_usd))}${F('التكلفة المطلوبة (د.ك)',money(p.requested_kwd))}${F('المبلغ المعتمد ($)',money(p.approved_usd))}${!exe?'':p.paid_usd!==undefined?F('المصروف ($)',money(p.paid_usd)):F('عدد الدفعات',(p.payments||[]).length)}${!exe&&p.notes?F('ملاحظات',p.notes,'w4'):''}</div>`:''}
   ${exe&&on('exe')?`<h3>التنفيذ</h3><div class="grid">${F('التنفيذ',p.executed)}${F('نسبة الإنجاز',pr)}${F('التوثيق',docTxt(p))}${F('عدد التقارير',(p.reports||[]).length)}${p.notes?F('ملاحظات',p.notes,'w4'):''}</div>`:''}
-  ${on('reps')?T('التقارير',['النوع','الإنجاز','التاريخ','التكلفة $','أفراد','أسر','الحالة'],reps):''}${on('als')?T('المتبرعون الموثّقون',['المتبرع','المخصص $','تاريخ التوثيق'],als):''}${exe&&on('pays')?T('الدفعات',['التاريخ','المبلغ $','الطريقة','الحالة'],pays):''}
+  ${T('التقارير',['النوع','الإنجاز','التاريخ','التكلفة $','أفراد','أسر','الحالة'],reps)}${on('als')?T('المتبرعون الموثّقون',['المتبرع','المخصص $','تاريخ التوثيق'],als):''}${exe&&on('pays')?T('الدفعات',['التاريخ','المبلغ $','الطريقة','الحالة'],pays):''}
   ${on('sigs')?`<div class="sigs">${sg('projects','موظف المشاريع')}${sg('finance','المحاسب')}<div class="sg"><b>اعتماد المدير</b><span></span><small></small></div></div>`:''}
-  ${on('ft')?`<div class="ft"><span>نظام مشاريع لجنة سوريا</span><span>طُبع في <bdi dir="ltr">${new Date().toLocaleString('en-GB')}</bdi> بواسطة ${esc(ME.full_name||'')}</span></div>`:''}</div>`;
+  <div class="ft"><span>نظام مشاريع لجنة سوريا</span><span>طُبع في <bdi dir="ltr">${new Date().toLocaleString('en-GB')}</bdi> بواسطة ${esc(ME.full_name||'')}</span></div></div>`;
   setTimeout(()=>window.print(),200)}
 async function editProject(id){const p=await api('projects.get',{id});const f=projFields(false);
   // شريك حالي صار غير معتمد داخلياً: يبقى ظاهراً باسمه في المشروع القديم
