@@ -129,6 +129,13 @@ tr.click{cursor:pointer}
 .sti{width:42px;height:42px;border-radius:12px;background:var(--soft);color:var(--pri);display:grid;place-items:center;flex:none}.sti svg{width:22px;height:22px}
 .stile b{display:block;font-size:14.5px;color:var(--title)}.stile small{display:block;color:var(--mut);font-size:12.5px;line-height:1.6;margin-top:2px}
 @media(max-width:600px){.sethead{align-items:flex-start}.sethead .avbig{width:72px;height:72px}.shact{width:100%}}
+/* اختيار متعدد في شريط البحث (الحسابات في التبرعات) */
+.msel{position:relative}.msel>summary{list-style:none;height:42px;display:flex;align-items:center;padding:0 38px 0 14px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231E7F4F' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left 14px center;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msel>summary::-webkit-details-marker{display:none}.msel[open]>summary{border-color:var(--pri);box-shadow:var(--focus)}
+.mselp{position:absolute;z-index:30;top:46px;inset-inline-start:0;min-width:100%;width:max-content;max-width:320px;max-height:300px;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.15);padding:6px}
+.mselp label{display:flex;gap:8px;align-items:center;margin:0;padding:6px 8px;border-radius:8px;color:var(--ink);font-weight:400;font-size:14px;cursor:pointer}.mselp label:hover{background:var(--hov)}
+/* خانة الملاحظات في الجداول: مختصرة، والنص كاملاً عند الوقوف عليها */
+td.ncell{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)}
 /* نافذة خيارات طباعة طلب الدعم: مربع لكل قسم */
 .prsel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin:6px 0 2px}
 .prsel label{display:flex;gap:8px;align-items:center;margin:0;color:var(--ink);font-weight:400;font-size:14px;cursor:pointer;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;transition:border-color .2s,background .2s}
@@ -1508,7 +1515,7 @@ const TOUR = {
     reports: { _: 'في الأعلى المشاريع المنتهية بلا تقرير نهائي. فلتر «الحالة» يُظهر التقارير بانتظار الاعتماد.',
       entity: 'أضف التقرير من صفحة المشروع. النهائي يحتاج التكلفة والمستفيدين وتاريخ الاستلام ومرفقاً واحداً على الأقل.' },
     donors: 'افتح المتبرع لترى تبرعاته والمشاريع التي موّلها، ولإصدار «تقرير المتبرع».',
-    donations: 'فلتر «التوثيق» يُظهر التبرعات غير الموثّقة على مشاريع، وفلتر «التقرير» ما لم يُرسل تقريره للمتبرع.',
+    donations: 'ابحث برقم السند، واختر حساباً أو أكثر من «الحسابات». فلتر «التخصيص» يُظهر التبرعات غير المخصصة أو المخصصة جزئياً للمشاريع، وفلتر «التقرير» ما لم يُرسل تقريره للمتبرع.',
     payments: { _: 'الجدول العلوي: المشاريع المعتمدة التي بقي صرفها. والسفلي: الدفعات وحالة استلامها.',
       accountant: 'سجّل الدفعة بزر «+ دفعة» بجانب المشروع. بعد بدء الأرصدة كل دفعة تمر عبر حوالة.' },
     balances: { _: 'اضغط اسم الرصيد لكشف حسابه. العلامة الحمراء: رصيد سالب أو تحت حد التنبيه.',
@@ -1919,7 +1926,7 @@ async function dashTab(t,pre){DS.tab=t;charts.forEach(c=>c.destroy());charts=[];
       <div class="card" style="margin-bottom:14px"><h3>المعتمد مقابل المصروف لكل جهة ($)</h3>${d.byEntity.length?`<div class="chartbox" style="height:${Math.max(220,d.byEntity.length*44)}px"><canvas id="f2"></canvas></div>`:'<div class="empty">لا توجد بيانات</div>'}</div>
       <div class="grid2">${d.pass&&d.pass.length?dbox('التحويل للشريك الميداني',d.pass,'الحالة','',{amtHead:'الدفعات $'}):''}${d.advances?`<div class="card"><h3>السلف المفتوحة (${fmtD(d.advances.length)})</h3>${tbl(['من','إلى',...(DS.entity_id?[]:['الجهة']),'المفتوح $','منذ'],d.advances.map(a=>`<tr class="click" onclick="go('redirections')"><td>${esc(a.from)}</td><td>${esc(a.to)}</td>${DS.entity_id?'':`<td>${esc(a.entity)}</td>`}<td class="num">${fmtD(a.open_usd)}</td><td class="num ${a.days>d.late_days?'red':''}">${fmtD(a.days)} يوماً</td></tr>`))}</div>`:''}</div>`}
   if(t==='do'){const s=d.stats;
-    h+=mini([[fmtD(s.count),'تبرع في الفترة'],[fmtD(s.kwd)+' د.ك','الإجمالي ($'+fmtD(s.usd)+')'],[Math.round(Number(s.full_pct)||0)+'%','موثّق بالكامل'],[fmtD(s.not_sent),'لم يُرسل تقريرها للمتبرع',s.not_sent?'red':'']])+
+    h+=mini([[fmtD(s.count),'تبرع في الفترة'],[fmtD(s.kwd)+' د.ك','الإجمالي ($'+fmtD(s.usd)+')'],[Math.round(Number(s.full_pct)||0)+'%','مخصص بالكامل'],[fmtD(s.not_sent),'لم يُرسل تقريرها للمتبرع',s.not_sent?'red':'']])+
       `<div class="card" style="margin-bottom:14px"><h3>التبرعات الشهرية (د.ك)</h3>${d.monthly.length?'<div class="chartbox"><canvas id="d1"></canvas></div>':'<div class="empty">لا توجد تبرعات في الفترة</div>'}</div>
       <div class="grid2">${dbox('حالة توثيق التبرعات',d.docStatus,'الحالة','doc',{fn:'don',amtHead:'المبلغ $'})}${dbox('حسب الحساب',d.byAccount,'الحساب','',{amtHead:'المبلغ د.ك'})}</div>
       <div class="grid2">${d.topDonors?`<div class="card"><h3>أكبر المتبرعين (بالدينار)</h3>${tbl(['المتبرع','التبرعات','د.ك','$'],d.topDonors.map(x=>`<tr><td>${esc(x.label)}</td><td class="num">${fmtD(x.count)}</td><td class="num">${fmtD(x.kwd)}</td><td class="num">${fmtD(x.usd)}</td></tr>`))}</div>`:''}
@@ -1972,10 +1979,15 @@ function sbar(pg,fields,right,opt){const F=FS[pg];SBF[pg]=fields;
   const fld=f=>{const v=F[f.k]==null?'':F[f.k],lb=esc(f.desc||(f.type==='select'||f.type==='date'||f.type==='number'?f.label:'بحث'));
     const W=c=>`<div class="sbf" style="max-width:${(f.w||(f.type==='select'?190:f.type==='number'?150:280))+10}px"><label>${lb}</label>${c}</div>`;
     if(f.type==='select')return W(`<select data-k="${f.k}"><option value="">${esc(f.label)}</option>${(f.options||[]).map(optOf).map(o=>`<option value="${esc(o.v)}" ${String(v)===String(o.v)?'selected':''}>${esc(o.l)}</option>`).join('')}</select>`);
+    if(f.type==='multi'){const sel=String(v).split('||').filter(Boolean);return W(`<details class="msel"><summary>${esc(mselTxt(sel,f.label))}</summary><div class="mselp">${(f.options||[]).map(optOf).map(o=>`<label><input type="checkbox" value="${esc(o.v)}" ${sel.indexOf(String(o.v))!==-1?'checked':''} onchange="mselSync(this)"> ${esc(o.l)}</label>`).join('')||'<span class="who">لا خيارات</span>'}</div><input type="hidden" data-k="${f.k}" data-label="${esc(f.label)}" value="${esc(v)}"></details>`)}
     if(f.type==='date')return W(`<input type="date" data-k="${f.k}" value="${esc(v)}">`);
     if(f.type==='number')return W(`<input type="number" class="num" inputmode="decimal" step="any" min="0" data-k="${f.k}" placeholder="0" value="${esc(v)}">`);
     return W(`<input data-k="${f.k}" placeholder="${esc(f.label)}" value="${esc(v)}">`)};
   return `<div class="top"><form class="sbar${opt&&opt.one?' one':''}" onsubmit="return sbGo(event,'${pg}')">${fields.map(fld).join('')}<div class="sbbtn"><button class="btn sm">بحث</button><button type="button" class="btn sm sec" onclick="sbClear('${pg}')">مسح</button></div></form>${right?`<div class="tbar">${right}</div>`:''}</div>`}
+/** اختيار متعدد في شريط البحث: نص الملخص، ومزامنة الخانة المخفية مع المربعات، وإغلاق القائمة عند الضغط خارجها */
+function mselTxt(sel,label){return !sel.length?label:sel.length===1?sel[0]:sel.length+' مختارة'}
+function mselSync(el){const d=el.closest('details'),h=d.querySelector('input[type=hidden]'),sel=[...d.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);h.value=sel.join('||');d.querySelector('summary').textContent=mselTxt(sel,h.dataset.label)}
+document.addEventListener('click',e=>{document.querySelectorAll('details.msel[open]').forEach(d=>{if(!d.contains(e.target))d.removeAttribute('open')})});
 function sbGo(e,pg){e.preventDefault();const F=FS[pg];e.target.querySelectorAll('[data-k]').forEach(el=>{F[el.dataset.k]=el.value.trim()});F.page=1;go(pg);return false}
 function sbClear(pg){FS[pg]={page:1};go(pg)}
 function pager(pg,r,unit){const pages=Math.max(1,Math.ceil(r.total/r.size));
@@ -2042,7 +2054,7 @@ async function expRun(key,mode){const x=EXPORTS[key];toast('جارٍ تجهيز 
   <div style="margin-top:4px;font-size:11px;color:#444">طُبع في ${esc(d.at)} بواسطة ${esc(d.by)}</div>`;
   setTimeout(()=>window.print(),150)}
 /** وصف فلاتر شريط البحث بلغة مقروءة (للتذييل وصفحة الفلاتر) */
-function sbDescribe(pg,fields){const F=FS[pg];return fields.filter(f=>F[f.k]!==undefined&&F[f.k]!=='').map(f=>{let v=F[f.k];if(f.type==='select'){const o=(f.options||[]).map(optOf).find(o=>String(o.v)===String(v));if(o)v=o.l}return [f.desc||f.label.replace(/^كل /,'').replace(/…$/,''),v]})}
+function sbDescribe(pg,fields){const F=FS[pg];return fields.filter(f=>F[f.k]!==undefined&&F[f.k]!=='').map(f=>{let v=F[f.k];if(f.type==='multi')v=String(v).split('||').join('، ');if(f.type==='select'){const o=(f.options||[]).map(optOf).find(o=>String(o.v)===String(v));if(o)v=o.l}return [f.desc||f.label.replace(/^كل /,'').replace(/…$/,''),v]})}
 
 /** طباعة وتصدير القوائم الأخرى بالمكوّن نفسه: listExport(صفحة, مورد الصلاحية, عنوان, بادئة الملف, أعمدة) */
 function listExport(pg,res,title,file,cols){EXPORTS[pg]={title,file:()=>file+'-'+new Date().toISOString().slice(0,10),can:()=>can(res,'export'),
@@ -2050,10 +2062,10 @@ function listExport(pg,res,title,file,cols){EXPORTS[pg]={title,file:()=>file+'-'
 listExport('reports','reports','التقارير','تقارير',[{h:'الرمز',k:'id',num:1},{h:'المشروع',k:'project_name'},{h:'الجهة',k:'entity_name'},{h:'النوع',k:'report_type'},{h:'الإنجاز %',num:1,v:r=>r.report_type==='مرحلي'?r.progress_pct:100},{h:'التاريخ',v:r=>r.received||r.end||''},
   {h:'المستفيدون أفراد',k:'ben_individuals',num:1,total:'ben_individuals'},{h:'المستفيدون أسر',k:'ben_families',num:1,total:'ben_families'},{h:'التكلفة المعتمدة $',k:'approved_usd',num:1},{h:'التكلفة بعد التنفيذ $',k:'final_cost_usd',num:1,total:'final_cost_usd'},{h:'الحالة',k:'review_status'}]);
 listExport('donors','donors','المتبرعون','متبرعون',[{h:'الرمز',k:'id',num:1},{h:'المتبرع',k:'name'},{h:'الهاتف',k:'phone',show:d=>d.rows.some(r=>r.phone)},{h:'التبرعات',k:'donations',num:1,total:'donations'},{h:'آخر تبرع',k:'last_donation'},
-  {h:'الإجمالي (د.ك)',k:'total_kwd',num:1,total:'total_kwd'},{h:'الإجمالي ($)',k:'total_usd',num:1,total:'total_usd'},{h:'نسبة الموثّق %',k:'doc_pct',num:1},{h:'بلا تقرير',k:'no_report',num:1,total:'no_report'},{h:'آخر تقرير',k:'last_report_at'},{h:'مشاريع',k:'projects',num:1}]);
+  {h:'الإجمالي (د.ك)',k:'total_kwd',num:1,total:'total_kwd'},{h:'الإجمالي ($)',k:'total_usd',num:1,total:'total_usd'},{h:'نسبة المخصص %',k:'doc_pct',num:1},{h:'بلا تقرير',k:'no_report',num:1,total:'no_report'},{h:'آخر تقرير',k:'last_report_at'},{h:'مشاريع',k:'projects',num:1}]);
 listExport('donations','donations','التبرعات','تبرعات',[{h:'التاريخ',v:r=>String(r.date||'').slice(0,10)},{h:'المتبرع',k:'name'},{h:'السند',k:'voucher'},{h:'الحساب',k:'account'},{h:'المبلغ (د.ك)',k:'amount_kwd',num:1,total:'amount_kwd'},{h:'المبلغ ($)',k:'amount_usd',num:1,total:'amount_usd'},
   {h:'نسبة اللجنة %',k:'committee_pct',num:1},{h:'حصة اللجنة (د.ك)',k:'committee_kwd',num:1,total:'committee_kwd'},{h:'حصة اللجنة ($)',k:'committee_usd',num:1,total:'committee_usd'},{h:'الصافي للمشاريع ($)',k:'net_usd',num:1,total:'net_usd'},
-  {h:'المخصص ($)',k:'allocated_usd',num:1,total:'allocated_usd'},{h:'التوثيق',k:'doc_status'},{h:'نسبة الموثّق %',k:'doc_pct',num:1},{h:'التقرير',v:r=>r.report_sent?'وصله '+(r.report_sent_at||''):'لم يصله'}]);
+  {h:'المخصص ($)',k:'allocated_usd',num:1,total:'allocated_usd'},{h:'التخصيص',k:'doc_status'},{h:'نسبة المخصص %',k:'doc_pct',num:1},{h:'التقرير',v:r=>r.report_sent?'وصله '+(r.report_sent_at||''):'لم يصله'},{h:'ملاحظات',k:'notes'}]);
 listExport('payments','payments','الدفعات','دفعات',[{h:'التاريخ',k:'date'},{h:'المشروع',k:'project_name'},{h:'الجهة',k:'entity_name'},{h:'$',k:'amount_usd',num:1,total:'amount_usd'},{h:'د.ك',k:'amount_kwd',num:1,total:'amount_kwd'},{h:'الطريقة',k:'method'},{h:'المرجع',k:'reference'},{h:'الحالة',k:'status'},
   {h:'التحويل للشريك',k:'pass_status',show:d=>d.rows.some(r=>r.pass_status&&r.pass_status!=='غير مطلوب')}]);
 listExport('transfers','payments','الحوالات','حوالات',[{h:'الرقم',k:'id',num:1},{h:'التاريخ',k:'date'},{h:'الجهة',k:'entity_name'},{h:'المبلغ',k:'amount',num:1},{h:'العملة',k:'currency'},{h:'المبلغ ($)',k:'amount_usd',num:1,total:'amount_usd'},{h:'الطريقة',k:'method'},{h:'المرجع',k:'reference'},
@@ -2441,25 +2453,26 @@ function entForm(e){
 
 /** نسبة اللجنة في التبرع: «10%»، وفي العرض معها حصتها «(100 د.ك / 326 $)»، وبلا نسبة «—» */
 const comTxt=(d,full)=>d.committee_pct===''||d.committee_pct==null?'—':d.committee_pct+'%'+(full?' ('+fmt(d.committee_kwd)+' د.ك / '+fmt(d.committee_usd)+' $)':'');
-const DOC_ST=['موثّق بالكامل','موثّق جزئياً','مخصص غير موثّق','غير مخصص'];
-const docPill=s=>`<span class="pill" style="${s==='موثّق بالكامل'?'color:var(--ok);border-color:var(--ok)':s==='موثّق جزئياً'?'color:#b7791f;border-color:#b7791f':s==='مخصص غير موثّق'?'color:var(--bad);border-color:var(--bad)':''}">${s}</span>`;
+/** حالات التبرع الثلاث (قرار محمود 2026-11-17): بالمبلغ المخصص للمشاريع مقابل صافي التبرع */
+const DOC_ST=['مخصص بالكامل','مخصص جزئياً','غير مخصص'];
+const docPill=s=>`<span class="pill" style="${s==='مخصص بالكامل'?'color:var(--ok);border-color:var(--ok)':s==='مخصص جزئياً'?'color:#b7791f;border-color:#b7791f':''}">${s}</span>`;
 const repCell=d=>d.report_sent?`<span class="pill" style="color:var(--ok);border-color:var(--ok)">وصله ${esc(d.report_sent_at||'')}</span>`:'<span class="pill" style="color:var(--bad);border-color:var(--bad)">لم يصله</span>';
-/** فلاتر التبرعات والمتبرعين المشتركة (التاريخ، التوثيق، التقرير) */
-const donFilters=q=>[{k:'q',label:q},{k:'date_from',label:'من تاريخ',type:'date'},{k:'date_to',label:'إلى',type:'date'},{k:'doc_status',label:'كل حالات التوثيق',type:'select',options:DOC_ST},{k:'report_status',label:'التقرير: الكل',type:'select',options:[{v:'sent',l:'وصله التقرير'},{v:'not_sent',l:'لم يصله التقرير'}]}];
+/** فلاتر التبرعات والمتبرعين المشتركة (التاريخ، التخصيص، التقرير) */
+const donFilters=q=>[{k:'q',label:q},{k:'date_from',label:'من تاريخ',type:'date'},{k:'date_to',label:'إلى',type:'date'},{k:'doc_status',label:'كل حالات التخصيص',type:'select',options:DOC_ST},{k:'report_status',label:'التقرير: الكل',type:'select',options:[{v:'sent',l:'وصله التقرير'},{v:'not_sent',l:'لم يصله التقرير'}]}];
 /** عرض التبرع: بياناته، وتوثيقه، والمشاريع المرتبطة به (الضغط على المشروع يفتحه) */
 async function viewDonation(id,back){const d=await api('donations.get',{id:Number(id)});
   const kv=(a,b,raw)=>`<div class="pv"><b>${a}</b><span>${raw?b:(b===undefined||b===null||b===''?'—':esc(b))}</span></div>`;
   const P=d.projects;
   modal(`<h2>تبرع ${esc(d.name||'')} ${docPill(d.doc_status)}</h2>
   <div class="pcard"><div class="fsh">بيانات التبرع</div><div class="pvg">${kv('المتبرع',d.name)}${kv('التاريخ',String(d.date||'').slice(0,10))}${kv('رقم السند',d.voucher)}${kv('الحساب',d.account)}${kv('الفرع',d.branch)}${d.phone!==undefined?kv('الهاتف',d.phone):''}
-   ${kv('المبلغ (د.ك)',fmt(d.amount_kwd))}${kv('المبلغ ($)',fmt(d.amount_usd))}${kv('نسبة اللجنة',comTxt(d,1))}${kv('الصافي للمشاريع ($)',fmt(d.net_usd))}${kv('المخصص ($)',fmt(d.allocated_usd))}${kv('الموثّق ($)',fmt(d.documented_usd))}${kv('نسبة الموثّق',d.doc_pct+'%')}${kv('التقرير',d.report_sent?'وصله '+(d.report_sent_at||''):'لم يصله')}
+   ${kv('المبلغ (د.ك)',fmt(d.amount_kwd))}${kv('المبلغ ($)',fmt(d.amount_usd))}${kv('نسبة اللجنة',comTxt(d,1))}${kv('الصافي للمشاريع ($)',fmt(d.net_usd))}${kv('المخصص ($)',fmt(d.allocated_usd))}${kv('الموثّق ($)',fmt(d.documented_usd))}${kv('نسبة المخصص',d.doc_pct+'%')}${kv('التقرير',d.report_sent?'وصله '+(d.report_sent_at||''):'لم يصله')}
    ${d.notes?`<div class="pv full"><b>ملاحظات</b><span>${esc(d.notes)}</span></div>`:''}</div></div>
   ${P?`<div class="sub"><h3>المشاريع المرتبطة (${P.length})</h3>${tbl(['المشروع','الجهة','الدولة','الحالة','المخصص $','من الجهة $','تاريخ التوثيق','أُرسل للمتبرع'],P.map(x=>`<tr class="click" onclick="openProject(${Number(x.project_id)})"><td>${esc(x.project)}${x.project_no?` <span class="who">${esc(x.project_no)}</span>`:''}</td><td>${esc(x.entity)}</td><td>${esc(x.region)}</td><td>${pill(x.status)}</td><td class="num">${fmt(x.allocated_usd)}</td><td class="num">${fmt(x.entity_amount_usd)}</td><td>${esc(x.documented)||'—'}</td><td>${esc(x.sent_to_donor)||'—'}</td></tr>`))}</div>`:''}
   <div class="row">${back?`<button class="btn sec" onclick="openDonor(${Number(back)})">رجوع إلى المتبرع</button>`:''}<button class="btn sec" onclick="closeModal()">إغلاق</button></div>`,'xl')}
 async function pgDonations(){
   const r=await apiC('donations.list',FS.donations);
-  $('#view').innerHTML=`<div class="card">${sbar('donations',donFilters('بحث بالاسم / السند / الهاتف…').reduce((x,f)=>{x.push(f);if(f.k==='q')x.push({k:'account',label:'كل الحسابات',desc:'نوع الحساب',type:'select',options:r.accounts||[],w:200});return x},[]),expBar('donations')+(can('donations','create')?' ':'')+(can('donations','create')?'<button class="btn" onclick="donForm()">+ تبرع جديد</button>':''))}
-  ${tbl(['التاريخ','المتبرع','السند','الحساب','المبلغ (د.ك)','المبلغ ($)','نسبة اللجنة','المخصص ($)','التوثيق','نسبة الموثّق','التقرير',''],r.rows.map(d=>`<tr><td>${esc(String(d.date||'').slice(0,10))}</td><td>${esc(d.name)}</td><td>${esc(d.voucher)}</td><td>${esc(d.account)}</td><td>${fmt(d.amount_kwd)}</td><td>${fmt(d.amount_usd)}</td><td>${comTxt(d)}</td><td>${fmt(d.allocated_usd)}</td><td>${docPill(d.doc_status)}</td><td>${d.doc_pct}%</td><td>${repCell(d)}</td><td style="white-space:nowrap"><button class="ico" title="عرض التبرع والمشاريع المرتبطة" aria-label="عرض" onclick="viewDonation(${Number(d.id)})">${IC.eye}</button> ${can('donations','report')?`<button class="ico" title="تسجيل إرسال التقرير للمتبرع" aria-label="تقرير" onclick="donReport(${Number(d.id)},${d.report_sent?1:0},RG('${reg(String(d.report_sent_at||''))}'))">${IC.rep}</button>`:''}${can('donations','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donForm(RG('${reg(d)}'))">${IC.edit}</button>`:''}</td></tr>`))}
+  $('#view').innerHTML=`<div class="card">${sbar('donations',donFilters('بحث بالاسم / السند / الهاتف…').reduce((x,f)=>{x.push(f);if(f.k==='q')x.push({k:'voucher',label:'رقم السند',desc:'رقم السند',w:150},{k:'account',label:'كل الحسابات',desc:'الحسابات',type:'multi',options:r.accounts||[],w:220});return x},[]),expBar('donations')+(can('donations','create')?' ':'')+(can('donations','create')?'<button class="btn" onclick="donForm()">+ تبرع جديد</button>':''))}
+  ${tbl(['التاريخ','المتبرع','السند','الحساب','المبلغ (د.ك)','المبلغ ($)','نسبة اللجنة','المخصص ($)','التخصيص','نسبة المخصص','التقرير','ملاحظات',''],r.rows.map(d=>`<tr><td>${esc(String(d.date||'').slice(0,10))}</td><td>${esc(d.name)}</td><td>${esc(d.voucher)}</td><td>${esc(d.account)}</td><td>${fmt(d.amount_kwd)}</td><td>${fmt(d.amount_usd)}</td><td>${comTxt(d)}</td><td>${fmt(d.allocated_usd)}</td><td>${docPill(d.doc_status)}</td><td>${d.doc_pct}%</td><td>${repCell(d)}</td><td class="ncell" title="${esc(d.notes||'')}">${esc(d.notes||'')}</td><td style="white-space:nowrap"><button class="ico" title="عرض التبرع والمشاريع المرتبطة" aria-label="عرض" onclick="viewDonation(${Number(d.id)})">${IC.eye}</button> ${can('donations','report')?`<button class="ico" title="تسجيل إرسال التقرير للمتبرع" aria-label="تقرير" onclick="donReport(${Number(d.id)},${d.report_sent?1:0},RG('${reg(String(d.report_sent_at||''))}'))">${IC.rep}</button>`:''}${can('donations','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donForm(RG('${reg(d)}'))">${IC.edit}</button>`:''}</td></tr>`))}
   ${pager('donations',r)}</div>`;
 }
 /** تسجيل/إلغاء إرسال التقرير للمتبرع */
@@ -2495,7 +2508,7 @@ function selSearch(sel,ph,texts){if(!sel)return;const q=document.createElement('
 async function pgDonors(){
   const r=await apiC('donors.list',FS.donors);
   $('#view').innerHTML=`<div class="card">${sbar('donors',donFilters('بحث بالاسم / الهاتف…'),expBar('donors')+(can('donors','create')?' ':'')+(can('donors','merge')?' <button class="btn sec" onclick="donorDupes()">المكررات المحتملة</button>':'')+(can('donors','create')?'<button class="btn" onclick="donorForm()">+ متبرع جديد</button>':''))}
-  ${tbl(['#','المتبرع','الهاتف','التبرعات','آخر تبرع','الإجمالي (د.ك)','الإجمالي ($)','نسبة الموثّق','بلا تقرير','آخر تقرير','مشاريع',''],r.rows.map(d=>`<tr><td>${d.id}</td><td>${esc(d.name)}</td><td>${esc(d.phone)}</td><td>${d.donations}</td><td>${esc(d.last_donation||'')}</td><td>${fmt(d.total_kwd)}</td><td>${fmt(d.total_usd)}</td><td>${d.doc_pct}%</td><td>${d.no_report?`<span class="pill" style="color:var(--bad);border-color:var(--bad)">${d.no_report}</span>`:'0'}</td><td>${esc(d.last_report_at||'—')}</td><td>${d.projects}</td><td style="white-space:nowrap"><button class="ico" title="عرض المتبرع وتبرعاته" aria-label="عرض" onclick="openDonor(${Number(d.id)})">${IC.eye}</button>${can('donors','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donorForm(RG('${reg({id:d.id,name:d.name,phone:d.phone,notes:d.notes})}'))">${IC.edit}</button>`:''}</td></tr>`))}
+  ${tbl(['#','المتبرع','الهاتف','التبرعات','آخر تبرع','الإجمالي (د.ك)','الإجمالي ($)','نسبة المخصص','بلا تقرير','آخر تقرير','مشاريع',''],r.rows.map(d=>`<tr><td>${d.id}</td><td>${esc(d.name)}</td><td>${esc(d.phone)}</td><td>${d.donations}</td><td>${esc(d.last_donation||'')}</td><td>${fmt(d.total_kwd)}</td><td>${fmt(d.total_usd)}</td><td>${d.doc_pct}%</td><td>${d.no_report?`<span class="pill" style="color:var(--bad);border-color:var(--bad)">${d.no_report}</span>`:'0'}</td><td>${esc(d.last_report_at||'—')}</td><td>${d.projects}</td><td style="white-space:nowrap"><button class="ico" title="عرض المتبرع وتبرعاته" aria-label="عرض" onclick="openDonor(${Number(d.id)})">${IC.eye}</button>${can('donors','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donorForm(RG('${reg({id:d.id,name:d.name,phone:d.phone,notes:d.notes})}'))">${IC.edit}</button>`:''}</td></tr>`))}
   ${pager('donors',r)}</div>`;
 }
 function donorForm(d){openForm(d?'تعديل متبرع':'متبرع جديد',[{k:'name',label:'اسم المتبرع',req:1,wide:1},{k:'phone',label:'الهاتف'},{k:'notes',label:'ملاحظات',type:'textarea',wide:1}],d||{},async x=>{if(d)await api('donors.update',{id:d.id,data:x});else await api('donors.create',{data:x});toast('تم الحفظ');go('donors')})}
