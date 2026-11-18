@@ -177,6 +177,8 @@ td.ncell{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellips
 /* أشرطة البحث والفلترة: الاسم فوق الخانة لتوفير المساحة، وأزرار البحث والمسح في آخر السطر */
 .sbar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;flex:1;margin:0}
 .sbf{display:flex;flex-direction:column;flex:1 1 150px;min-width:130px}.sbf>label{margin:0 0 6px;font-size:12.5px}.sbf input,.sbf select{height:42px}
+/* خط أصغر داخل خانات البحث والتصفية (طلب محمود 2026-11-18): القيمة والنص الإرشادي والقائمة المتعددة، ومسافات أقل فيظهر النص كاملاً */
+.sbf input,.sbf select,.sbf .msel>summary{font-size:13px}.sbf input::placeholder{font-size:13px}.sbf input{padding:0 10px}.sbf select{padding:0 10px 0 28px;background-position:left 9px center}.sbf .msel>summary{padding:0 10px 0 28px;background-position:left 9px center}
 .sbar>.btn{height:42px}.top>.sbar{flex:1 1 100%}.tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .sbl{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--mut);white-space:nowrap}.sbl input{width:150px}
 @media(max-width:600px){.sbf{flex:1 1 100%}.sbl{flex:1 1 100%}.sbl input{flex:1}}
@@ -2156,7 +2158,7 @@ async function openProject(id){
   const al=p.allocations.map(a=>`<tr><td>${esc(a.donor_name)}${dfBtn(a)}</td>${ME.role==='entity'?'':`<td>${fmt(a.allocated_usd)}</td>`}<td>${fmt(a.entity_amount_usd)}</td><td>${esc(a.documented)}</td>${can('allocations','update')?`<td>${a.verified_by?'✔ '+esc(a.verified_by):Number(a.entity_amount_usd)>0?`<button class="btn sm sec" title="مراجعة المبلغ الذي سجّلته الجهة وتأكيده" onclick="verifyAlloc(${Number(a.id)},${Number(id)})">مطابقة</button>`:'—'}</td>`:''}</tr>`);
   const isEnt=ME.role==='entity',hasEx=!!p.pass_summary;const pay=p.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${fmt(x.amount_usd)}</td><td>${esc(x.method)}</td>${isEnt?'':`<td>${esc(x.reference)}</td>`}<td>${pill(x.status)}${x.received_at?' <span class="who">'+esc(String(x.received_at).slice(0,10))+'</span>':''}</td>${hasEx?`<td>${passPill(x)}</td>`:''}${isEnt?'':`<td>${x.can_edit?`<button class="btn sm sec" onclick="editPayment(RG('${reg(x)}'),${Number(id)})">تعديل</button>`:''}</td>`}${isEnt?`<td>${can('payments','confirm')&&x.status==='محوّل'?`<button class="btn sm ok" onclick="confirmPay(${Number(x.id)},${Number(id)})">تأكيد الاستلام</button>`:''}${hasEx&&can('passthroughs','create')&&x.status==='مؤكد الاستلام'&&x.remaining_usd>0.005?` <button class="btn sm" onclick="addPass(${Number(x.id)},${Number(id)},${Number(x.remaining_usd)})">تسجيل تمرير</button>`:''}</td>`:''}</tr>`);
   const ps=p.pass_summary;
-  const fl=p.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td>${kb(f.size)}</td><td>${esc(f.created_at)}</td><td style="white-space:nowrap">${canView(f.mime)?`<button class="btn sm" onclick="viewFile(${Number(f.id)})">فتح</button> `:''}<button class="btn sm sec" onclick="dl(${Number(f.id)})">تنزيل</button>${can('files','archive')?` <button class="btn sm bad" onclick="archiveFile(${Number(f.id)},${Number(id)})">حذف</button>`:''}</td></tr>`);
+  const fl=p.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td>${kb(f.size)}</td><td>${esc(f.created_at)}</td><td style="white-space:nowrap">${canView(f.mime)?`<button class="btn sm" onclick="viewFile(${Number(f.id)})">فتح</button> <button class="btn sm sec" onclick="printFile(${Number(f.id)})">طباعة</button> `:''}<button class="btn sm sec" onclick="dl(${Number(f.id)})">تنزيل</button>${can('files','archive')?` <button class="btn sm bad" onclick="archiveFile(${Number(f.id)},${Number(id)})">حذف</button>`:''}</td></tr>`);
   const pr=p.progress_pct===''||p.progress_pct==null?null:Number(p.progress_pct);
   const stBtn=s=>`<button class="btn sm ${s==='معتمد'?'ok':s==='غير معتمد'?'bad':'sec'}" onclick="decide(${Number(id)},'${s}',${Number(p.approved_usd)||Number(p.requested_usd)||0})">${s==='معتمد'?'اعتماد':s==='غير معتمد'?'غير معتمد':s}</button>`;
   // كل بيانات المشروع في أقسام: الهوية، الجهة والشراكة، التصنيف، المدة والمستفيدون، المبالغ، التنفيذ، الملاحظات، السجل
@@ -2252,7 +2254,7 @@ async function viewFile(fid){let x;try{x=await fileBlob(fid)}catch(e){toast(e.me
   d.onclick=e=>{if(e.target===d)closeViewer()};d.dataset.url=u;
   const isPdf=x.mime==='application/pdf';
   const body=String(x.mime).indexOf('image/')===0?`<img src="${u}" alt="" style="max-width:100%;max-height:78vh;display:block;margin:auto">`:isPdf?`<div id="pdfv" style="height:78vh;overflow:auto;background:#525659;border-radius:10px;padding:10px;text-align:center"><div class="who" style="color:#fff">جارٍ عرض الملف…</div></div>`:`<iframe src="${u}" title="" style="width:100%;height:78vh;border:1px solid var(--line);border-radius:10px;background:#fff"></iframe>`;
-  d.innerHTML=`<div class="box xl"><div class="row" style="justify-content:space-between;align-items:center;margin:0 0 10px"><h2 style="margin:0;overflow-wrap:anywhere">${esc(x.name)}</h2><div class="row" style="margin:0"><button type="button" class="btn sm" onclick="saveBlob(VIEWX)">تنزيل</button><button type="button" class="btn sm sec" onclick="closeViewer()">إغلاق</button></div></div>${body}</div>`;
+  d.innerHTML=`<div class="box xl"><div class="row" style="justify-content:space-between;align-items:center;margin:0 0 10px"><h2 style="margin:0;overflow-wrap:anywhere">${esc(x.name)}</h2><div class="row" style="margin:0"><button type="button" class="btn sm sec" onclick="printBlob(VIEWX)">طباعة</button><button type="button" class="btn sm" onclick="saveBlob(VIEWX)">تنزيل</button><button type="button" class="btn sm sec" onclick="closeViewer()">إغلاق</button></div></div>${body}</div>`;
   document.body.appendChild(d);if(isPdf)pdfRender(x)}
 /** PDF: كروم يحظر عارضه داخل إطار Apps Script المعزول، فتُرسم الصفحات بمكتبة pdf.js (موزيلا) في كل المتصفحات.
  *  تُحمَّل عند أول فتح لملف PDF فقط (لا أثر على سرعة النظام)، بإصدار مثبّت وتجزئة integrity من cdnjs */
@@ -2265,14 +2267,37 @@ function pdfjsLoad(){if(PDFJS_P)return PDFJS_P;const base='https:'+'/'+'/cdnjs.c
     .then(t=>{pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([t],{type:'text/javascript'}));return pdfjsLib})
     .catch(e=>{PDFJS_P=null;throw e});
   return PDFJS_P}
+/** ملف PDF مفتوحاً بمكتبة pdf.js (العرض والطباعة): الخطوط غير المضمّنة والعربية؛ disableFontFace يرسم الحروف بمقاساتها الدقيقة */
+async function pdfDoc(x){const lib=await pdfjsLoad(),fd='https:'+'/'+'/cdn.jsdelivr.net/npm/pdfjs-dist@'+PDFJS.v+'/';
+  return lib.getDocument({data:new Uint8Array(await x.blob.arrayBuffer()),standardFontDataUrl:fd+'standard_fonts/',cMapUrl:fd+'cmaps/',cMapPacked:true,disableFontFace:true}).promise}
 async function pdfRender(x){const box=$('#pdfv');
-  try{const lib=await pdfjsLoad(),fd='https:'+'/'+'/cdn.jsdelivr.net/npm/pdfjs-dist@'+PDFJS.v+'/',pdf=await lib.getDocument({data:new Uint8Array(await x.blob.arrayBuffer()),standardFontDataUrl:fd+'standard_fonts/',cMapUrl:fd+'cmaps/',cMapPacked:true,disableFontFace:true}).promise;   /* الخطوط غير المضمّنة والعربية؛ disableFontFace يرسم الحروف بمقاساتها الدقيقة */
+  try{const pdf=await pdfDoc(x);
     if(!$('#pdfv')||VIEWX!==x)return;box.innerHTML='';const W=Math.max(300,box.clientWidth-40),n=Math.min(pdf.numPages,PDFJS.max);
     for(let i=1;i<=n;i++){if(VIEWX!==x)return;const pg=await pdf.getPage(i),v1=pg.getViewport({scale:1}),sc=W/v1.width,dpr=window.devicePixelRatio||1,vp=pg.getViewport({scale:sc*dpr});
       const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;c.style.width=Math.floor(vp.width/dpr)+'px';c.style.display='block';c.style.margin='0 auto 10px';c.style.background='#fff';
       box.appendChild(c);await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}
     if(pdf.numPages>n)box.insertAdjacentHTML('beforeend',`<div class="who" style="color:#fff">عُرضت أول ${n} صفحة من ${pdf.numPages}؛ نزّل الملف لرؤية الباقي.</div>`)}
   catch(e){if($('#pdfv')&&VIEWX===x)box.innerHTML=`<div class="who" style="color:#fff;padding:30px">تعذّر عرض الملف هنا (${esc(e.message||e)}). استخدم «تنزيل».</div>`}}
+/** طباعة المرفق مباشرة بلا تنزيل (الصور وPDF والنص) من منطقة الطباعة نفسها، بلا نافذة ولا إطار فتعمل في إطار Google ونسخة GitHub:
+ *  الصورة كما هي، وصفحات PDF تُرسم بمكتبة pdf.js صوراً (حتى PDFJS.max صفحة، كل صفحة في ورقة)، والنص سطوراً مهرَّبة */
+async function printFile(fid){let x;try{x=await fileBlob(fid)}catch(e){toast(e.message);return}return printBlob(x)}
+const fileDataUrl=b=>new Promise((ok,fail)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>fail(r.error);r.readAsDataURL(b)});
+async function printBlob(x){if(!x)return;const m=String(x.mime||'');
+  if(!canView(m)){toast('هذا النوع لا يُطبع من النظام؛ نزّله واطبعه من برنامجه');return}
+  const css='<style>@page{size:A4 portrait;margin:8mm}#printArea .pfpg{display:block;max-width:100%;max-height:277mm;width:auto;height:auto;margin:0 auto;break-after:page;page-break-after:always}#printArea .pfpg:last-child{break-after:auto;page-break-after:auto}#printArea .pftxt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.7;margin:0}</style>';
+  let body;
+  try{
+    if(m.indexOf('image/')===0)body='<img class="pfpg" alt="" src="'+(await fileDataUrl(x.blob))+'">';
+    else if(m==='application/pdf'){toast('جارٍ تجهيز الملف للطباعة…');const pdf=await pdfDoc(x),n=Math.min(pdf.numPages,PDFJS.max),pages=[];
+      for(let i=1;i<=n;i++){const pg=await pdf.getPage(i),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(2.5,1650/w)}),c=document.createElement('canvas');   /* نحو 200 نقطة في البوصة لورقة A4 */
+        c.width=vp.width;c.height=vp.height;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:g,viewport:vp}).promise;
+        pages.push('<img class="pfpg" alt="" src="'+c.toDataURL('image/jpeg',0.92)+'">')}
+      body=pages.join('');if(pdf.numPages>n)toast('تُطبع أول '+n+' صفحة من '+pdf.numPages+'؛ نزّل الملف لطباعة الباقي')}
+    else body='<pre class="pftxt">'+esc(await x.blob.text())+'</pre>';
+  }catch(e){toast('تعذّرت الطباعة ('+(e.message||e)+')؛ استخدم «تنزيل»');return}
+  const pa=$('#printArea');pa.innerHTML=css+body;
+  await Promise.all([...pa.querySelectorAll('img')].map(i=>i.decode?i.decode().catch(()=>{}):0));
+  setTimeout(()=>window.print(),150)}
 function closeViewer(){const d=$('#viewer');if(d){URL.revokeObjectURL(d.dataset.url);d.remove()}VIEWX=null}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#viewer'))closeViewer()});
 function addFiles(pid){openForm('إضافة مرفقات',[{k:'files',label:'الملفات',type:'files',req:1,wide:1},{k:'kind',label:'النوع (اختر «عقد» لتُعلَّم «عقد المشروع» في صفحة المشروع)',type:'select',options:['طلب','تقرير','عقد','أخرى']}],{kind:'أخرى'},async d=>{await api('files.upload',{data:{project_id:pid,files:d.files,kind:d.kind}});toast('تم الرفع');openProject(pid)})}
@@ -2619,7 +2644,7 @@ function trFilter(){const q=normAr($('#trq').value.trim()),sel=$('#trp');let n=0
   if(sel.selectedOptions[0]&&sel.selectedOptions[0].hidden)sel.value='';if(n===1&&q)sel.value=last.value;sel.options[0].textContent=q?(n?`— ${n} مشروع مطابق —`:'— لا يوجد مشروع مطابق —'):'— اختر مشروعاً معتمداً للجهة —'}
 async function openTransfer(id){const t=await api('transfers.get',{id});CURT=t;const cur=t.currency==='KWD'?'د.ك':'$';
   const pays=t.payments.map(x=>`<tr><td>${esc(x.date)}</td><td><a href="#" onclick="closeModal();openProject(${Number(x.project_id)});return false">${esc(x.project_name||x.project_id)}</a></td><td>${fmt(x.amount)} ${esc(x.currency==='KWD'?'د.ك':'$')}</td><td>${fmt(x.amount_usd)}</td><td>${pill(x.status)}</td><td>${can('payments','update')?`<button class="btn sm ${x.dist?'bad':'sec'}" title="${x.dist?'تُحذف الدفعة من المشروع ومن الصرف':'تبقى الدفعة مسجّلة على المشروع'}" onclick="transferLink(${Number(x.id)},'',${x.dist?1:0})">${x.dist?'إلغاء التوزيع':'فك الربط'}</button>`:''}</td></tr>`);
-  const fl=t.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${kb(f.size)}</td><td>${esc(String(f.created_at||'').slice(0,10))}</td><td style="white-space:nowrap">${canView(f.mime)?`<button class="btn sm" onclick="viewFile(${Number(f.id)})">فتح</button> `:''}<button class="btn sm sec" onclick="dl(${Number(f.id)})">تنزيل</button></td></tr>`);
+  const fl=t.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${kb(f.size)}</td><td>${esc(String(f.created_at||'').slice(0,10))}</td><td style="white-space:nowrap">${canView(f.mime)?`<button class="btn sm" onclick="viewFile(${Number(f.id)})">فتح</button> <button class="btn sm sec" onclick="printFile(${Number(f.id)})">طباعة</button> `:''}<button class="btn sm sec" onclick="dl(${Number(f.id)})">تنزيل</button></td></tr>`);
   const pOpts=t.eligible.map(p=>`<option value="${p.id}" data-q="${esc(normAr([p.id,p.project_no,p.name].join(' ')))}">${esc((p.project_no?p.project_no+' — ':'')+p.name)} (متبقٍّ للصرف $${fmt(p.remaining_usd)})</option>`).join('');
   const uOpts=t.unlinked.map(x=>`<option value="${x.id}">${esc(x.date)} — ${esc(x.project_name||x.project_id)} — $${fmt(x.amount_usd)}${x.reference?' — '+esc(x.reference):''}</option>`).join('');
   if(t.archived_view){modal(`<h2>حوالة #${t.id} <span class="pill">مؤرشفة</span></h2><div class="kv"><b>الجهة</b><span>${esc(t.entity_name)}</span><b>التاريخ</b><span>${esc(String(t.date||'').slice(0,10))}</span><b>المبلغ</b><span>${fmt(t.amount)} ${cur} (${fmt(t.amount_kwd)} د.ك)</span></div>${fundSection(t)}<div class="row"><button class="btn sec" onclick="closeModal()">إغلاق</button></div>`);return}
