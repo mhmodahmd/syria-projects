@@ -178,7 +178,7 @@ td.ncell{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellips
 .sbar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;flex:1;margin:0}
 .sbf{display:flex;flex-direction:column;flex:1 1 150px;min-width:130px}.sbf>label{margin:0 0 6px;font-size:12.5px}.sbf input,.sbf select{height:42px}
 /* خط أصغر داخل خانات البحث والتصفية (طلب محمود 2026-11-18): القيمة والنص الإرشادي والقائمة المتعددة، ومسافات أقل فيظهر النص كاملاً */
-.sbf input,.sbf select,.sbf .msel>summary{font-size:13px}.sbf input::placeholder{font-size:13px}.sbf input{padding:0 10px}.sbf select{padding:0 10px 0 28px;background-position:left 9px center}.sbf .msel>summary{padding:0 10px 0 28px;background-position:left 9px center}
+.sbf input,.sbf select,.sbf .msel>summary{font-size:11px}.sbf input::placeholder{font-size:11px}.sbf input{padding:0 10px}.sbf select{padding:0 10px 0 28px;background-position:left 9px center}.sbf .msel>summary{padding:0 10px 0 28px;background-position:left 9px center}
 .sbar>.btn{height:42px}.top>.sbar{flex:1 1 100%}.tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .sbl{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--mut);white-space:nowrap}.sbl input{width:150px}
 @media(max-width:600px){.sbf{flex:1 1 100%}.sbl{flex:1 1 100%}.sbl input{flex:1}}
@@ -1561,9 +1561,9 @@ function loading(on){
     _LDT=setTimeout(()=>{const el=loadingEl();el.querySelector('.ldslow').classList.add('hidden');el.classList.remove('hidden')},300);
     _LDT2=setTimeout(()=>{const el=loadingEl();el.querySelector('.ldslow').classList.remove('hidden')},3000);return}
   if(--_PENDING>0)return;_PENDING=0;clearTimeout(_LDT);clearTimeout(_LDT2);const el=document.getElementById('loading');if(el)el.classList.add('hidden')}
-function api(action,p,o){const sil=!!(o&&o.silent);if(!sil)loading(true);return new Promise((res,rej)=>{
+function api(action,p,o){const sil=!!(o&&o.silent),meta=!!(o&&o.meta);if(!sil)loading(true);return new Promise((res,rej)=>{
   callServer(TOKEN,action,p||{}).then(r=>{if(!sil)loading(false);
-    if(r&&r.ok){vcAfter(action);return res(r.data)}
+    if(r&&r.ok){vcAfter(action,r.touched);return res(meta?{data:r.data,deps:r.deps}:r.data)}
     if(r&&r.auth){showLogin();return rej(new Error(r.error))}
     rej(new Error((r&&r.error)||'خطأ غير متوقع'));
   },e=>{if(!sil)loading(false);rej(new Error((e&&e.message)||'تعذّر الاتصال'))});
@@ -1579,12 +1579,16 @@ function callServer(token,action,p){
 /** يمنع تكرار العملية نفسها أثناء تنفيذها (الضغط المزدوج) */
 const _BUSY={};async function once(key,fn){if(_BUSY[key])return;_BUSY[key]=1;try{return await fn()}finally{delete _BUSY[key]}}
 const can=(r,a)=>L&&L.perms[r]&&L.perms[r].indexOf(a)!==-1;
-/* VC-BEGIN ---------- ذاكرة التبويب للعرض الفوري (لا تغيير في الخادم) ----------
+/* VC-BEGIN ---------- ذاكرة التبويب للعرض الفوري ----------
  * صفحة سبق فتحها في هذه الجلسة تُعرض فوراً من آخر نتيجة (متغير في الصفحة فقط؛ البيانات لا تُحفظ في تخزين المتصفح)،
  * ثم تُطلب من الخادم في الخلفية وتُستبدل إن تغيّرت. المفتاح: الإجراء والفلاتر ورقم الصفحة.
- * أي إجراء كتابة ناجح (VC_WRITE = WRITE_ACTIONS في Api.gs، واختبار يُبقيهما متطابقتين) والخروج يمسحان الذاكرة كلها */
+ * بعد الدخول تُجهَّز الصفحة الأولى لكل صفحات القوائم المسموحة بطلب واحد مجمَّع (prefetch في Api.gs).
+ * إجراء الكتابة الناجح (VC_WRITE = WRITE_ACTIONS في Api.gs، واختبار يُبقيهما متطابقتين) يمسح الصفحات التي قرأت جدولاً كتبه
+ * (deps من رد القراءة وtouched من رد الكتابة)، ثم تُجهَّز من جديد بطلب مجمَّع؛ والخروج يمسح الذاكرة كلها */
 const VC_WRITE=new Set(['changePassword','notifications.read','profile.avatar','projects.create','projects.update','projects.archive','projects.sign','profile.signature','profile.guide','entities.create','entities.update','entities.archive','files.upload','files.archive','reports.review','reports.create','reports.update','reports.archive','donors.statement','donorfile.get','donors.create','donors.update','donors.archive','donors.merge','donors.unmerge','donors.report','donations.create','donations.report','donations.update','donations.archive','allocations.create','allocations.update','allocations.archive','transfers.create','transfers.update','transfers.distribute','transfers.link','transfers.upload','transfers.archive','transfers.fund','transfers.releaseFunding','redirections.create','redirections.approve','redirections.reject','redirections.settle','redirections.finalize','redirections.archive','passthroughs.create','passthroughs.approve','passthroughs.reject','passthroughs.archive','payments.confirm','payments.setrate','payments.create','payments.update','payments.archive','outputs.addItem','outputs.updateItem','outputs.set','balances.create','balances.update','balances.move','balances.transfer','balances.cancelExpense','balances.setStart','balances.archive','users.create','users.update','users.setdenied','users.setgranted','users.reset','users.archive']);
-const VC=new Map();let VC_EPOCH=0,VC_SKIP=0,VC_NAV=0,VC_BUSY=0;
+const VC=new Map(),VC_FLY=new Set();let VC_EPOCH=0,VC_SKIP=0,VC_NAV=0,VC_BUSY=0,VC_PFT=null;
+/** تُمسح مع أي حفظ: كاش اللوحة في الخادم (5 دقائق) لا يتبع الجداول، فلا نعرف ما تقرؤه */
+const VC_ANYWRITE=new Set(['dashboard','dashboard.tab']);
 /** المفتاح: الإجراء والمعاملات (الفلاتر ورقم الصفحة). اللوحة: الفترة والجهة (والتبويب) فقط، بلا fresh وحالة العرض */
 function vcKey(a,p){p=p||{};
   if(a==='dashboard')p={period:p.period,entity_id:p.entity_id};
@@ -1592,19 +1596,29 @@ function vcKey(a,p){p=p||{};
   else{const q={};Object.keys(p).sort().forEach(k=>{if(k!=='fresh'&&p[k]!==undefined&&p[k]!=='')q[k]=p[k]});p=q}
   return a+'|'+JSON.stringify(p)}
 const vcCopy=d=>d===undefined?d:JSON.parse(JSON.stringify(d));
-function vcClear(){VC.clear();VC_EPOCH++;vcBusy(0,1)}
-/** بعد كل استدعاء ناجح: إجراء الكتابة يمسح الذاكرة كلها */
-function vcAfter(action){if(VC_WRITE.has(action))vcClear()}
-/** معاملات صفحات القوائم (مشتركة بين الصفحة والتجهيز المسبق، فيتطابق المفتاح) */
-const PQ={projects:()=>FS.projects,reports:()=>Object.assign({with_overdue:1},FS.reports)};
+/** المحفوظ: النتيجة وما قرأته من جداول (deps)؛ deps=null = لا نعرف، فتُمسح مع أي حفظ */
+function vcSet(k,d,deps){VC.set(k,{d:vcCopy(d),deps:VC_ANYWRITE.has(k.slice(0,k.indexOf('|')))||!Array.isArray(deps)?null:deps.slice()})}
+const vcGet=k=>vcCopy(VC.get(k).d);
+function vcClear(){VC.clear();VC_EPOCH++;vcBusy(0,1);clearTimeout(VC_PFT);VC_PFT=null}
+/** بعد كل استدعاء ناجح: إجراء الكتابة يمسح الصفحات التي قرأت جدولاً كتبه (touched)، وما لا نعرف ما قرأه، ثم يُعاد تجهيزها بطلب مجمَّع.
+ *  بلا touched أو «*» (كل الجداول): مسح كامل. VC_EPOCH يتغيّر مع كل حفظ فلا يعيد طلبٌ بدأ قبله ملء الذاكرة بنتيجة قديمة */
+function vcAfter(action,touched){if(!VC_WRITE.has(action))return;
+  if(!Array.isArray(touched)||touched.indexOf('*')!==-1)vcClear();
+  else{const t=new Set(touched);VC_EPOCH++;vcBusy(0,1);[...VC.keys()].forEach(k=>{const e=VC.get(k);if(!e.deps||e.deps.some(x=>t.has(x)))VC.delete(k)})}
+  vcPrefetchSoon()}
+/** معاملات صفحات القوائم (مشتركة بين الصفحة والتجهيز المسبق، فيتطابق المفتاح): الصفحة الجديدة تُضاف هنا وفي VC_PAGES */
+const PQ={projects:()=>FS.projects,reports:()=>Object.assign({with_overdue:1},FS.reports),donors:()=>FS.donors,donations:()=>FS.donations,
+  payments:()=>Object.assign({with_payables:1},FS.payments),transfers:()=>FS.transfers,balances:()=>Object.assign({size:200},FS.balances),
+  redirections:()=>FS.redirections,entities:()=>FS.entities,users:()=>({}),notifications:()=>({})};
 /** طلب قراءة بذاكرة التبويب: المحفوظ يُعاد فوراً ويُحدَّث في الخلفية؛ fresh (زر «تحديث» في اللوحة) يتجاوز المحفوظ */
 async function apiC(action,p){const k=vcKey(action,p);
-  if(VC.has(k)&&!(p&&p.fresh)){if(!VC_SKIP)vcRefresh(action,p,k);return vcCopy(VC.get(k))}
-  const ep=VC_EPOCH,d=await api(action,p);if(ep===VC_EPOCH)VC.set(k,vcCopy(d));return d}
+  if(VC.has(k)&&!(p&&p.fresh)){if(!VC_SKIP)vcRefresh(action,p,k);return vcGet(k)}
+  const ep=VC_EPOCH;VC_FLY.add(k);
+  try{const m=await api(action,p,{meta:true});if(ep===VC_EPOCH)vcSet(k,m.data,m.deps);return m.data}finally{VC_FLY.delete(k)}}
 /** التحديث في الخلفية: بلا مؤشر التحميل الحاجب، ويُعاد رسم الصفحة إن تغيّرت النتيجة وبقي المستخدم فيها */
 async function vcRefresh(action,p,k){const ep=VC_EPOCH,nav=VC_NAV,page=location.hash.slice(1)||'dashboard';vcBusy(1);
-  try{const d=await api(action,p,{silent:true});if(ep!==VC_EPOCH)return;const old=JSON.stringify(VC.get(k));VC.set(k,vcCopy(d));
-    if(JSON.stringify(d)!==old&&nav===VC_NAV&&(location.hash.slice(1)||'dashboard')===page&&!vcTyping())await vcRerender(page)}
+  try{const m=await api(action,p,{silent:true,meta:true});if(ep!==VC_EPOCH)return;const o=VC.get(k),old=JSON.stringify(o&&o.d);vcSet(k,m.data,m.deps);
+    if(JSON.stringify(m.data)!==old&&nav===VC_NAV&&(location.hash.slice(1)||'dashboard')===page&&!vcTyping())await vcRerender(page)}
   catch(e){}finally{vcBusy(-1)}}
 const vcTyping=()=>{const a=document.activeElement,v=document.getElementById('view');return !!(a&&v&&v.contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))};
 /** إعادة رسم الصفحة الحالية من الذاكرة (بلا طلب جديد)، مع حفظ موضع التمرير */
@@ -1612,13 +1626,21 @@ async function vcRerender(page){const y=window.scrollY;VC_SKIP++;
   try{await PAGES[page][2]();const h=hintHtml(page);if(h)$('#view').insertAdjacentHTML('afterbegin',h);window.scrollTo(0,y)}catch(e){}finally{VC_SKIP--}}
 /** مؤشر خفيف «جارٍ التحديث…» أثناء التحديث الخلفي لنسخة معروضة */
 function vcBusy(d,reset){VC_BUSY=reset?0:Math.max(0,VC_BUSY+d);const el=document.getElementById('vcbusy');if(el)el.classList.toggle('hidden',!VC_BUSY)}
-/** بعد init: تجهيز الصفحات الرئيسية بحسب الصلاحية في الخلفية، طلباً واحداً تلو الآخر (لا بالتوازي)، والمحفوظ يُتجاوز */
-async function vcPrefetch(){const ep=VC_EPOCH,tk=TOKEN,q=[['dashboard',{period:DS.period,entity_id:DS.entity_id}]];
-  const g=dashGuess();if(g)q.push(['dashboard.tab',{tab:g,period:DS.period,entity_id:DS.entity_id,fresh:false}]);
-  if(can('projects','view'))q.push(['projects.list',PQ.projects()]);
-  if(can('reports','view'))q.push(['reports.list',PQ.reports()]);
-  for(const [a,p] of q){if(ep!==VC_EPOCH||TOKEN!==tk||!TOKEN)return;const k=vcKey(a,p);if(VC.has(k))continue;
-    try{const d=await api(a,p,{silent:true});if(ep===VC_EPOCH&&!VC.has(k))VC.set(k,vcCopy(d))}catch(e){}}}
+/** الصفحات التي تُجهَّز مسبقاً: [الصفحة في PAGES (صلاحيتها)، الإجراء]، بمعاملات PQ. سجل التدقيق لا يُجهَّز (يُقرأ من الورقة كل مرة ويتغيّر مع كل حفظ) */
+const VC_PAGES=[['projects','projects.list'],['reports','reports.list'],['donors','donors.list'],['donations','donations.list'],['payments','payments.list'],
+  ['transfers','transfers.list'],['balances','balances.list'],['redirections','redirections.list'],['entities','entities.list'],['users','users.list'],['notifications','notifications.list']];
+/** ما ينقص الذاكرة الآن: اللوحة وتبويبها الأول ثم الصفحة الأولى لكل قائمة يملكها المستخدم، بلا المحفوظ ولا ما تطلبه صفحة الآن */
+function vcPrefetchItems(){const q=[['dashboard',{period:DS.period,entity_id:DS.entity_id}]];
+  const g=dashGuess();if(g)q.push(['dashboard.tab',{tab:g,period:DS.period,entity_id:DS.entity_id}]);
+  VC_PAGES.forEach(([pg,a])=>{if(PAGES[pg]&&PAGES[pg][1]())q.push([a,PQ[pg]()])});
+  return q.filter(([a,p])=>{const k=vcKey(a,p);return !VC.has(k)&&!VC_FLY.has(k)})}
+/** بعد init وبعد كل حفظ: ما ينقص يُطلب في الخلفية بطلب واحد مجمَّع (prefetch)، وما تعذّر منه تطلبه صفحته عند فتحها */
+async function vcPrefetch(){if(!TOKEN||!ME||ME.must_change)return;const ep=VC_EPOCH,tk=TOKEN,q=vcPrefetchItems();if(!q.length)return;
+  let r;try{r=await api('prefetch',{items:q.map(([a,p])=>({action:a,params:p}))},{silent:true})}catch(e){return}
+  if(ep!==VC_EPOCH||TOKEN!==tk||!r||!Array.isArray(r.results))return;
+  r.results.forEach((x,i)=>{const it=q[i];if(!it||!x||!x.ok)return;const k=vcKey(it[0],it[1]);if(!VC.has(k))vcSet(k,x.data,x.deps)})}
+/** بعد الحفظ: انتظار قصير (تبدأ الصفحة المفتوحة طلبها أولاً، وحفظان متتاليان يجمعهما تجهيز واحد) */
+function vcPrefetchSoon(){clearTimeout(VC_PFT);VC_PFT=setTimeout(()=>{VC_PFT=null;vcPrefetch()},1500)}
 /* VC-END */
 function showLogin(){TOKEN=null;ME=null;try{sessionStorage.removeItem('tk')}catch(e){}vcClear();$('#app').classList.add('hidden');$('#login').classList.remove('hidden');chatReset(true);applyTheme('auto')}
 /* ---------- وضع العرض: تلقائي (حسب الجهاز) ← فاتح ← داكن؛ يُحفظ في حساب المستخدم (Users.guide.theme) لا في المتصفح ---------- */
@@ -2462,7 +2484,7 @@ async function setRate(){const v=prompt('سعر الصرف الافتراضي (�
 
 /* ---------- الجهات ---------- */
 async function pgEntities(){
-  const rows=await apiC('entities.list',FS.entities);
+  const rows=await apiC('entities.list',PQ.entities());
   $('#view').innerHTML=`<div class="card">${sbar('entities',[{k:'q',label:'بحث بالاسم / المسؤول / البريد…'},{k:'status',label:'كل حالات الخارجية',type:'select',options:L.entityStatuses},{k:'approved_status',label:'كل حالات الاعتماد',type:'select',options:L.entityApproved||[]},{k:'country',label:'كل الدول',type:'select',options:L.regions}],`<span class="who">${rows.length} جهة</span>${can('entities','create')?' <button class="btn" onclick="entForm()">+ جهة جديدة</button>':''}`)}${tbl(['الجهة','الرمز','الحالة (الخارجية)','حالة الاعتماد','نطاق العمل (الدول)','مسؤول التواصل','البريد','الهاتف','واتساب','مشاريع',''],rows.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.code)}</td><td>${pill(e.status)}</td><td>${pill(e.approved_status)}</td><td>${esc(e.countries||'—')}</td><td>${esc(e.contact_person)}</td><td>${esc(e.email)}</td><td>${esc(e.phone)}</td><td>${esc(e.whatsapp)}</td><td>${e.projects}</td><td>${can('entities','update')?`<button class="btn sm sec" onclick="entForm(RG('${reg(e)}'))">تعديل</button>`:''}</td></tr>`))}</div>`;
 }
 function entForm(e){
@@ -2495,7 +2517,7 @@ async function viewDonation(id,back){const d=await api('donations.get',{id:Numbe
   ${P?`<div class="sub"><h3>المشاريع المرتبطة (${P.length})</h3>${tbl(['المشروع','الجهة','الدولة','الحالة','المخصص $','من الجهة $','تاريخ التوثيق','أُرسل للمتبرع'],P.map(x=>`<tr class="click" onclick="openProject(${Number(x.project_id)})"><td>${esc(x.project)}${x.project_no?` <span class="who">${esc(x.project_no)}</span>`:''}</td><td>${esc(x.entity)}</td><td>${esc(x.region)}</td><td>${pill(x.status)}</td><td class="num">${fmt(x.allocated_usd)}</td><td class="num">${fmt(x.entity_amount_usd)}</td><td>${esc(x.documented)||'—'}</td><td>${esc(x.sent_to_donor)||'—'}</td></tr>`))}</div>`:''}
   <div class="row">${back?`<button class="btn sec" onclick="openDonor(${Number(back)})">رجوع إلى المتبرع</button>`:''}<button class="btn sec" onclick="closeModal()">إغلاق</button></div>`,'xl')}
 async function pgDonations(){
-  const r=await apiC('donations.list',FS.donations);
+  const r=await apiC('donations.list',PQ.donations());
   $('#view').innerHTML=`<div class="card">${sbar('donations',donFilters('بحث بالاسم / السند / الهاتف…').reduce((x,f)=>{x.push(f);if(f.k==='q')x.push({k:'voucher',label:'رقم السند',desc:'رقم السند',w:150},{k:'account',label:'كل الحسابات',desc:'الحسابات',type:'multi',options:r.accounts||[],w:220});return x},[]),expBar('donations')+(can('donations','create')?' ':'')+(can('donations','create')?'<button class="btn" onclick="donForm()">+ تبرع جديد</button>':''))}
   ${tbl(['التاريخ','المتبرع','السند','الحساب','المبلغ (د.ك)','المبلغ ($)','نسبة اللجنة','المخصص ($)','التخصيص','نسبة المخصص','التقرير','ملاحظات',''],r.rows.map(d=>`<tr><td>${esc(String(d.date||'').slice(0,10))}</td><td>${esc(d.name)}</td><td>${esc(d.voucher)}</td><td>${esc(d.account)}</td><td>${fmt(d.amount_kwd)}</td><td>${fmt(d.amount_usd)}</td><td>${comTxt(d)}</td><td>${fmt(d.allocated_usd)}</td><td>${docPill(d.doc_status)}</td><td>${d.doc_pct}%</td><td>${repCell(d)}</td><td class="ncell" title="${esc(d.notes||'')}">${esc(d.notes||'')}</td><td style="white-space:nowrap"><button class="ico" title="عرض التبرع والمشاريع المرتبطة" aria-label="عرض" onclick="viewDonation(${Number(d.id)})">${IC.eye}</button> ${can('donations','report')?`<button class="ico" title="تسجيل إرسال التقرير للمتبرع" aria-label="تقرير" onclick="donReport(${Number(d.id)},${d.report_sent?1:0},RG('${reg(String(d.report_sent_at||''))}'))">${IC.rep}</button>`:''}${can('donations','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donForm(RG('${reg(d)}'))">${IC.edit}</button>`:''}</td></tr>`))}
   ${pager('donations',r)}</div>`;
@@ -2531,7 +2553,7 @@ function selSearch(sel,ph,texts){if(!sel)return;const q=document.createElement('
 
 /* ---------- المتبرعون ---------- */
 async function pgDonors(){
-  const r=await apiC('donors.list',FS.donors);
+  const r=await apiC('donors.list',PQ.donors());
   $('#view').innerHTML=`<div class="card">${sbar('donors',donFilters('بحث بالاسم / الهاتف…'),expBar('donors')+(can('donors','create')?' ':'')+(can('donors','merge')?' <button class="btn sec" onclick="donorDupes()">المكررات المحتملة</button>':'')+(can('donors','create')?'<button class="btn" onclick="donorForm()">+ متبرع جديد</button>':''))}
   ${tbl(['#','المتبرع','الهاتف','التبرعات','آخر تبرع','الإجمالي (د.ك)','الإجمالي ($)','نسبة المخصص','بلا تقرير','آخر تقرير','مشاريع',''],r.rows.map(d=>`<tr><td>${d.id}</td><td>${esc(d.name)}</td><td>${esc(d.phone)}</td><td>${d.donations}</td><td>${esc(d.last_donation||'')}</td><td>${fmt(d.total_kwd)}</td><td>${fmt(d.total_usd)}</td><td>${d.doc_pct}%</td><td>${d.no_report?`<span class="pill" style="color:var(--bad);border-color:var(--bad)">${d.no_report}</span>`:'0'}</td><td>${esc(d.last_report_at||'—')}</td><td>${d.projects}</td><td style="white-space:nowrap"><button class="ico" title="عرض المتبرع وتبرعاته" aria-label="عرض" onclick="openDonor(${Number(d.id)})">${IC.eye}</button>${can('donors','update')?`<button class="ico" title="تعديل" aria-label="تعديل" onclick="donorForm(RG('${reg({id:d.id,name:d.name,phone:d.phone,notes:d.notes})}'))">${IC.edit}</button>`:''}</td></tr>`))}
   ${pager('donors',r)}</div>`;
@@ -2610,7 +2632,7 @@ async function pgReports(){
 
 /* ---------- الصرف ---------- */
 async function pgPayments(){
-  const r=await apiC('payments.list',Object.assign({with_payables:1},FS.payments)),pb=r.payables||[];
+  const r=await apiC('payments.list',PQ.payments()),pb=r.payables||[];
   const fields=[{k:'q',label:'بحث بالمشروع أو المرجع…'}];
   if(L.entities.length>1)fields.push({k:'entity_id',label:'كل الجهات',type:'select',options:L.entities});
   fields.push({k:'status',label:'كل الحالات',type:'select',options:['محوّل','مؤكد الاستلام']},{k:'pass_status',label:'كل حالات التمرير',type:'select',options:(L.passPayStatuses||[]).concat(can('passthroughs','review')?[{v:'_pending',l:'تمرير بانتظار المراجعة'}]:[]),w:170},{k:'method',label:'كل الطرق',type:'select',options:L.payMethods},{k:'date_from',label:'من تاريخ',type:'date'},{k:'date_to',label:'إلى',type:'date'});
@@ -2622,7 +2644,7 @@ async function pgPayments(){
 const TR_COLORS={'موزعة بالكامل':'var(--ok)','موزعة جزئياً':'#b7791f','غير موزعة':'var(--bad)'};
 const trPill=s=>`<span class="pill" style="white-space:nowrap;color:${TR_COLORS[s]||'inherit'};border-color:${TR_COLORS[s]||'var(--line)'}">${esc(s)}</span>`;
 async function pgTransfers(){
-  const r=await apiC('transfers.list',FS.transfers);
+  const r=await apiC('transfers.list',PQ.transfers());
   const fields=[{k:'q',label:'بحث بالرقم أو المرجع أو الجهة…'}];
   if(L.entities.length>1)fields.push({k:'entity_id',label:'كل الجهات',type:'select',options:L.entities});
   fields.push({k:'dist_status',label:'كل حالات التوزيع',type:'select',options:L.transferStatuses||[]},{k:'date_from',label:'من تاريخ',type:'date'},{k:'date_to',label:'إلى',type:'date'});
@@ -2705,7 +2727,7 @@ const balSel=(k,label)=>({k,label,type:'select',req:1,wide:1,options:(BALOPT||[]
 const reloadBal=()=>go(location.hash==='#balmoves'?'balmoves':'balances');
 const balKp=(v,t,red,sub)=>`<div class="card kpi"><div class="v" style="${red?'color:var(--bad)':''}">${v}</div><div class="l">${t}</div>${sub?`<div class="who">${sub}</div>`:''}</div>`;
 async function pgBalances(){
-  const r=await apiC('balances.list',Object.assign({size:200},FS.balances)),c=r.can,t=r.totals;BALSTART=r.start||'';
+  const r=await apiC('balances.list',PQ.balances()),c=r.can,t=r.totals;BALSTART=r.start||'';
   const fields=[{k:'q',label:'بحث بالاسم أو التصنيف…'},{k:'category',label:'كل التصنيفات',type:'select',options:r.categories},{k:'status',label:'كل الحالات',type:'select',options:r.statuses},{k:'flag',label:'كل الأرصدة',type:'select',options:[{v:'red',l:'السالبة أو تحت حد التنبيه'}],w:210}];
   const btns=[];
   if(c.create)btns.push(`<button class="btn sm" onclick="balForm(null)">+ رصيد جديد</button>`);
@@ -2771,7 +2793,7 @@ const redirBtns=(r,back)=>{const b=[];
   return b.join(' ')};
 const redirTable=(rows,back)=>tbl(['#','التاريخ','من مشروع','إلى مشروع','الجهة المسؤولة','المبلغ $','المسدَّد $','المتبقي $','الحالة','السبب',''],rows.map(r=>`<tr><td>${r.id}</td><td>${esc(r.date)}</td><td>${projCell(r.from_project_id,r.from_name,r.from_executor)}</td><td>${projCell(r.to_project_id,r.to_name,r.to_executor)}</td><td>${esc(r.entity_name)}</td><td>${fmt(r.amount_usd)}</td><td>${fmt(r.settled_usd)}</td><td>${r.status==='سلفة مفتوحة'?fmt(r.open_usd)+(r.days_open>30?` <span class="who" style="color:var(--bad)">${r.days_open} يوماً</span>`:''):'—'}</td><td>${redirPill(r.status)}${r.decision_note?'<div class="who">'+esc(r.decision_note)+'</div>':''}${r.final_note?'<div class="who">'+esc(r.final_note)+'</div>':''}</td><td>${esc(r.reason)}</td><td style="white-space:nowrap">${redirBtns(r,back)}</td></tr>`));
 async function pgRedirections(){
-  const r=await apiC('redirections.list',FS.redirections);
+  const r=await apiC('redirections.list',PQ.redirections());
   const fields=[{k:'q',label:'بحث باسم المشروع أو رمزه…'},{k:'status',label:'كل الحالات',type:'select',options:L.redirStatuses||[]}];
   if(L.entities.length>1)fields.push({k:'entity_id',label:'كل الجهات',type:'select',options:L.entities});
   $('#view').innerHTML=`<div class="card">${sbar('redirections',fields,expBar('redirections')+(can('redirections','create')?' ':'')+(can('redirections','create')?'<button class="btn" onclick="newRedir()">+ طلب إعادة توجيه</button>':''))}
